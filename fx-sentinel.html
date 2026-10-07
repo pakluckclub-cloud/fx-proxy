@@ -1,0 +1,2850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>FX SENTINEL — AI Forex Signal &amp; Learning Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<style>
+:root{
+  --bg0:#04060c;--bg1:#070b14;--bg2:#0b111e;
+  --panel:rgba(15,22,38,.78);--border:rgba(88,132,210,.16);--border2:rgba(88,160,255,.32);
+  --blue:#2f7bff;--cyan:#22d3ee;--green:#12d18e;--red:#ff4d5e;--gold:#f7c948;--orange:#ff9f43;
+  --text:#e9eefb;--dim:#8ea2c4;--mute:#5b6d8d;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  --shadow:0 18px 48px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;color:var(--text);min-height:100vh;
+  background:
+    radial-gradient(1100px 620px at 12% -8%,rgba(47,123,255,.16),transparent 62%),
+    radial-gradient(900px 520px at 96% 4%,rgba(34,211,238,.10),transparent 60%),
+    radial-gradient(800px 620px at 50% 110%,rgba(247,201,72,.05),transparent 60%),
+    linear-gradient(180deg,var(--bg0),var(--bg1) 45%,var(--bg2));
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:rgba(255,255,255,.02)}
+::-webkit-scrollbar-thumb{background:rgba(88,140,220,.25);border-radius:8px}
+::-webkit-scrollbar-thumb:hover{background:rgba(88,140,220,.42)}
+.hidden{display:none!important}
+.mono{font-family:var(--mono)}
+.up{color:var(--green)}.down{color:var(--red)}.muted{color:var(--mute)}.dim{color:var(--dim)}
+.center{text-align:center}.right{text-align:right}.nowrap{white-space:nowrap}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;justify-content:center;padding:10px 16px;border-radius:10px;
+  border:1px solid var(--border2);background:linear-gradient(180deg,rgba(47,123,255,.20),rgba(47,123,255,.07));
+  color:var(--text);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:.18s;letter-spacing:.2px;white-space:nowrap}
+.btn:hover{background:linear-gradient(180deg,rgba(47,123,255,.34),rgba(47,123,255,.14));border-color:rgba(120,180,255,.55);transform:translateY(-1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn.ghost{background:rgba(255,255,255,.03);border-color:var(--border)}
+.btn.ghost:hover{background:rgba(255,255,255,.07)}
+.btn.green{background:linear-gradient(180deg,rgba(18,209,142,.22),rgba(18,209,142,.07));border-color:rgba(18,209,142,.45)}
+.btn.red{background:linear-gradient(180deg,rgba(255,77,94,.20),rgba(255,77,94,.06));border-color:rgba(255,77,94,.42)}
+.btn.gold{background:linear-gradient(180deg,rgba(247,201,72,.20),rgba(247,201,72,.06));border-color:rgba(247,201,72,.42);color:#ffe9ab}
+.btn.sm{padding:7px 12px;font-size:12px;border-radius:8px}
+.btn.xs{padding:5px 9px;font-size:11px;border-radius:7px}
+.btn.block{width:100%}
+
+/* Inputs */
+.input{width:100%;padding:11px 13px;border-radius:10px;background:rgba(6,10,20,.75);
+  border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:13.5px;transition:.16s}
+.input:focus{outline:none;border-color:var(--border2);box-shadow:0 0 0 3px rgba(47,123,255,.14)}
+.input::placeholder{color:var(--mute)}
+label.fl{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.9px;color:var(--mute);margin-bottom:6px;font-weight:600}
+
+/* Cards */
+.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:var(--shadow);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;inset:0 0 auto 0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(120,180,255,.55),transparent);opacity:.65}
+.card-pad{padding:18px}
+.card-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;border-bottom:1px solid var(--border)}
+.card-hd h3{font-size:13.5px;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:9px;text-transform:uppercase;color:#cfe0ff}
+.card-hd h3 i{color:var(--cyan);font-size:13px}
+.card-bd{padding:18px}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:999px;
+  font-size:10.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;border:1px solid transparent;white-space:nowrap}
+.badge.buy{background:rgba(18,209,142,.13);color:#4dffc0;border-color:rgba(18,209,142,.42)}
+.badge.sell{background:rgba(255,77,94,.13);color:#ff8a96;border-color:rgba(255,77,94,.42)}
+.badge.notrade{background:rgba(140,160,190,.10);color:#a9bcd8;border-color:rgba(140,160,190,.28)}
+.badge.pending{background:rgba(247,201,72,.12);color:#ffdd8a;border-color:rgba(247,201,72,.4)}
+.badge.active{background:rgba(34,211,238,.12);color:#7ce7f7;border-color:rgba(34,211,238,.42)}
+.badge.tp{background:rgba(18,209,142,.16);color:#5ffcc4;border-color:rgba(18,209,142,.5)}
+.badge.sl{background:rgba(255,77,94,.16);color:#ff97a1;border-color:rgba(255,77,94,.5)}
+.badge.warn{background:rgba(255,159,67,.14);color:#ffc286;border-color:rgba(255,159,67,.45)}
+.badge.info{background:rgba(47,123,255,.14);color:#8fc0ff;border-color:rgba(47,123,255,.42)}
+.badge.mute{background:rgba(255,255,255,.04);color:var(--dim);border-color:var(--border)}
+
+/* Layout */
+.app{display:grid;grid-template-columns:252px 1fr;min-height:100vh}
+.sidebar{background:linear-gradient(180deg,rgba(8,13,24,.96),rgba(6,10,18,.98));border-right:1px solid var(--border);
+  display:flex;flex-direction:column;position:sticky;top:0;height:100vh;z-index:40}
+.brand{display:flex;align-items:center;gap:12px;padding:20px 18px 16px;border-bottom:1px solid var(--border)}
+.brand-logo{width:40px;height:40px;border-radius:12px;flex:0 0 40px;background:linear-gradient(135deg,var(--blue),var(--cyan));
+  display:grid;place-items:center;font-size:17px;color:#03101f;box-shadow:0 0 24px rgba(47,123,255,.5)}
+.brand-txt b{display:block;font-size:14.5px;letter-spacing:1.4px;font-weight:800}
+.brand-txt span{font-size:9.5px;letter-spacing:1.6px;color:var(--mute);text-transform:uppercase;font-weight:600}
+.nav{flex:1;overflow-y:auto;padding:14px 10px}
+.nav-label{font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--mute);padding:12px 10px 7px;font-weight:700}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10.5px 12px;border-radius:11px;color:var(--dim);
+  font-size:13.2px;font-weight:500;cursor:pointer;transition:.15s;border:1px solid transparent;margin-bottom:2px}
+.nav-item i{width:17px;text-align:center;font-size:13.5px}
+.nav-item:hover{background:rgba(47,123,255,.09);color:var(--text)}
+.nav-item.active{background:linear-gradient(90deg,rgba(47,123,255,.22),rgba(34,211,238,.07));color:#fff;
+  border-color:rgba(88,160,255,.32);box-shadow:inset 0 0 22px rgba(47,123,255,.14)}
+.nav-item .pill{margin-left:auto;font-size:10px;padding:2px 7px;border-radius:999px;background:rgba(34,211,238,.16);color:#7ce7f7;font-weight:700}
+.sidebar-foot{padding:12px;border-top:1px solid var(--border)}
+.main{display:flex;flex-direction:column;min-width:0}
+.topbar{display:flex;align-items:center;gap:14px;padding:14px 22px;border-bottom:1px solid var(--border);
+  background:rgba(7,11,20,.82);backdrop-filter:blur(14px);position:sticky;top:0;z-index:30}
+.topbar h1{font-size:16px;font-weight:700;letter-spacing:.4px}
+.topbar h1 small{display:block;font-size:10.5px;color:var(--mute);font-weight:500;letter-spacing:.4px;margin-top:2px}
+.topbar-spacer{flex:1}
+.status-chip{display:flex;align-items:center;gap:7px;padding:6px 11px;border-radius:999px;
+  background:rgba(255,255,255,.035);border:1px solid var(--border);font-size:11px;font-weight:600;color:var(--dim)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--mute);flex:0 0 7px}
+.dot.on{background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 2.2s infinite}
+.dot.warn{background:var(--orange);box-shadow:0 0 10px var(--orange)}
+.dot.err{background:var(--red);box-shadow:0 0 10px var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.views{flex:1;padding:22px;max-width:1680px;width:100%}
+.view{display:none;animation:fade .28s ease}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.g-2-1{grid-template-columns:2fr 1fr}
+.g-1-2{grid-template-columns:1fr 2fr}
+@media(max-width:1400px){.g5{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1100px){.g4,.g3{grid-template-columns:repeat(2,minmax(0,1fr))}.g-2-1,.g-1-2{grid-template-columns:1fr}}
+@media(max-width:760px){.g2,.g3,.g4,.g5{grid-template-columns:1fr}}
+
+/* Stats */
+.stat{padding:16px 17px;border-radius:16px;background:var(--panel);border:1px solid var(--border);position:relative;overflow:hidden;backdrop-filter:blur(14px)}
+.stat::after{content:'';position:absolute;right:-28px;top:-28px;width:88px;height:88px;border-radius:50%;background:radial-gradient(circle,rgba(47,123,255,.20),transparent 70%)}
+.stat .lbl{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mute);font-weight:700;display:flex;align-items:center;gap:7px}
+.stat .val{font-family:var(--mono);font-size:24px;font-weight:700;margin-top:9px;letter-spacing:-.5px}
+.stat .sub{font-size:11px;color:var(--mute);margin-top:5px}
+.stat.g .val{color:var(--green)}.stat.r .val{color:var(--red)}
+.stat.c .val{color:var(--cyan)}.stat.b .val{color:#8fc0ff}.stat.y .val{color:var(--gold)}
+
+/* Signal card */
+.sig-card{padding:16px;border-radius:16px;background:var(--panel);border:1px solid var(--border);backdrop-filter:blur(14px);transition:.2s;position:relative;overflow:hidden}
+.sig-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.sig-card.buy{border-left:3px solid var(--green)}
+.sig-card.sell{border-left:3px solid var(--red)}
+.sig-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+.sig-pair{font-size:16px;font-weight:800;letter-spacing:.6px}
+.sig-pair small{display:block;font-size:10px;color:var(--mute);font-weight:600;letter-spacing:1px;margin-top:2px}
+.sig-levels{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.lvl{background:rgba(255,255,255,.028);border:1px solid var(--border);border-radius:9px;padding:8px 9px}
+.lvl .k{font-size:9px;letter-spacing:1px;color:var(--mute);text-transform:uppercase;font-weight:700}
+.lvl .v{font-family:var(--mono);font-size:12.8px;font-weight:600;margin-top:3px}
+.lvl.tp .v{color:var(--green)}.lvl.sl .v{color:var(--red)}.lvl.en .v{color:var(--cyan)}
+.progress{height:6px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden;margin:10px 0 4px}
+.progress i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .5s}
+.progress-lbl{display:flex;justify-content:space-between;font-size:10px;color:var(--mute);font-weight:600}
+
+/* Tables */
+.tbl-wrap{overflow-x:auto}
+table.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+table.tbl th{text-align:left;padding:11px 12px;font-size:10px;letter-spacing:1.1px;text-transform:uppercase;
+  color:var(--mute);font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap;background:rgba(255,255,255,.014)}
+table.tbl td{padding:11px 12px;border-bottom:1px solid rgba(88,132,210,.075);vertical-align:middle}
+table.tbl tbody tr{transition:.13s}
+table.tbl tbody tr:hover{background:rgba(47,123,255,.055)}
+table.tbl td.num{font-family:var(--mono);font-size:12px}
+
+/* Misc */
+.empty{padding:44px 20px;text-align:center;color:var(--mute)}
+.empty i{font-size:34px;opacity:.28;display:block;margin-bottom:12px}
+.empty b{display:block;font-size:14px;color:var(--dim);margin-bottom:5px;font-weight:600}
+.empty span{font-size:12px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:6px 13px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.028);
+  font-size:11.5px;font-weight:600;color:var(--dim);cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--border2);color:var(--text)}
+.chip.active{background:linear-gradient(90deg,rgba(47,123,255,.25),rgba(34,211,238,.1));border-color:rgba(88,160,255,.5);color:#fff}
+.evidence-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid rgba(88,132,210,.08)}
+.evidence-row:last-child{border-bottom:none}
+.evidence-row .k{font-size:11.5px;color:var(--dim);font-weight:600;letter-spacing:.3px;display:flex;align-items:center;gap:9px}
+.evidence-row .k i{color:var(--cyan);width:15px;text-align:center;font-size:12px}
+.evidence-row .v{font-size:12.5px;font-weight:600;text-align:right}
+.news-item{padding:13px 0;border-bottom:1px solid rgba(88,132,210,.08)}
+.news-item:last-child{border-bottom:none}
+.news-hd{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:7px}
+.news-title{font-size:13px;font-weight:600;line-height:1.45;margin-bottom:5px}
+.news-meta{font-size:10.5px;color:var(--mute);display:flex;gap:12px;flex-wrap:wrap}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(2,4,9,.82);backdrop-filter:blur(7px);z-index:200;display:grid;place-items:center;padding:20px;animation:fade .18s}
+.modal{width:min(760px,100%);max-height:88vh;overflow-y:auto;background:linear-gradient(180deg,#0d1424,#0a1020);
+  border:1px solid var(--border2);border-radius:18px;box-shadow:0 30px 90px rgba(0,0,0,.75)}
+
+/* Toasts */
+#toasts{position:fixed;right:20px;bottom:20px;z-index:400;display:flex;flex-direction:column;gap:10px;max-width:370px}
+.toast{padding:13px 15px;border-radius:12px;background:rgba(13,20,36,.97);border:1px solid var(--border2);
+  box-shadow:var(--shadow);display:flex;gap:11px;align-items:flex-start;animation:slideIn .28s ease;font-size:12.5px}
+@keyframes slideIn{from{transform:translateX(110%);opacity:0}to{transform:none;opacity:1}}
+.toast i{font-size:14px;margin-top:1px}
+.toast.ok i{color:var(--green)}.toast.err i{color:var(--red)}.toast.warn i{color:var(--orange)}.toast.info i{color:var(--cyan)}
+.toast b{display:block;font-size:12.5px;margin-bottom:2px}
+.toast span{color:var(--dim);font-size:11.5px;line-height:1.45}
+
+/* Auth */
+.auth-wrap{min-height:100vh;display:grid;place-items:center;padding:24px}
+.auth-card{width:min(430px,100%);padding:34px;border-radius:20px;background:var(--panel);
+  border:1px solid var(--border);backdrop-filter:blur(20px);box-shadow:var(--shadow)}
+.auth-logo{width:60px;height:60px;border-radius:17px;background:linear-gradient(135deg,var(--blue),var(--cyan));
+  display:grid;place-items:center;font-size:25px;color:#03101f;margin:0 auto 18px;box-shadow:0 0 34px rgba(47,123,255,.55)}
+.auth-card h2{text-align:center;font-size:21px;letter-spacing:1.6px;font-weight:800}
+.auth-card p.sub{text-align:center;font-size:12px;color:var(--mute);margin:7px 0 24px;line-height:1.6}
+
+/* Config banner */
+.cfg-banner{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:12px;
+  background:linear-gradient(90deg,rgba(255,159,67,.13),rgba(255,159,67,.03));
+  border:1px solid rgba(255,159,67,.4);font-size:12.5px;color:#ffd0a1;margin-bottom:18px;line-height:1.55}
+.cfg-banner i{color:var(--orange);font-size:15px;margin-top:1px}
+.cfg-banner code{font-family:var(--mono);background:rgba(0,0,0,.35);padding:1px 6px;border-radius:5px;font-size:11.5px;color:#ffdd8a}
+.tagset{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:10px;padding:3.5px 9px;border-radius:7px;background:rgba(47,123,255,.1);
+  border:1px solid rgba(47,123,255,.26);color:#9dc5ff;font-weight:600;letter-spacing:.3px}
+.tag.risk{background:rgba(255,159,67,.1);border-color:rgba(255,159,67,.3);color:#ffc286}
+.bar-row{display:flex;align-items:center;gap:11px;padding:8px 0}
+.bar-row .nm{font-size:12px;font-weight:600;width:118px;flex:0 0 118px;color:var(--dim)}
+.bar-track{flex:1;height:8px;border-radius:999px;background:rgba(255,255,255,.055);overflow:hidden}
+.bar-track i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.bar-row .vv{font-family:var(--mono);font-size:11.5px;width:56px;text-align:right;flex:0 0 56px;color:var(--dim)}
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:0;top:0;width:252px;transform:translateX(-100%);transition:.26s}
+  .sidebar.open{transform:none;box-shadow:0 0 60px rgba(0,0,0,.8)}
+  .views{padding:15px}.topbar{padding:12px 15px}
+}
+.menu-btn{display:none}
+@media(max-width:900px){.menu-btn{display:inline-flex}}
+.pulse{animation:pulse 1.6s infinite}
+</style>
+</head>
+<body>
+
+<!-- BOOT -->
+<div id="bootScreen" class="auth-wrap">
+  <div class="auth-card center">
+    <div class="auth-logo"><i class="fa-solid fa-satellite-dish"></i></div>
+    <h2>FX SENTINEL</h2>
+    <p class="sub">AI Forex Signal &amp; Learning Platform<br/>Initialising engines…</p>
+    <div class="progress" style="margin-top:6px"><i id="bootBar" style="width:10%"></i></div>
+    <div id="bootMsg" class="muted" style="font-size:11.5px;margin-top:12px">Connecting…</div>
+  </div>
+</div>
+
+<!-- AUTH -->
+<div id="authScreen" class="auth-wrap hidden">
+  <div class="auth-card">
+    <div class="auth-logo"><i class="fa-solid fa-satellite-dish"></i></div>
+    <h2>FX SENTINEL</h2>
+    <p class="sub">AI Forex Signal &amp; Learning Platform<br/>Real data · Auditable history · Continuous learning</p>
+    <div id="authConfigWarn" class="cfg-banner hidden">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <div><b>Firebase not configured.</b> Fill in your Firebase credentials in the <code>CONFIG.FIREBASE_CONFIG</code> block. Until then the platform runs in non-persistent mode and no data is invented.</div>
+    </div>
+    <div class="chips" style="justify-content:center;margin-bottom:20px">
+      <div class="chip active" data-authtab="login">Sign In</div>
+      <div class="chip" data-authtab="register">Register</div>
+    </div>
+    <div id="authLogin">
+      <label class="fl">Email</label>
+      <input id="loginEmail" class="input" type="email" placeholder="you@example.com" style="margin-bottom:13px"/>
+      <label class="fl">Password</label>
+      <input id="loginPass" class="input" type="password" placeholder="••••••••" style="margin-bottom:18px"/>
+      <button id="btnLogin" class="btn block"><i class="fa-solid fa-right-to-bracket"></i> Sign In</button>
+      <button id="btnGuest" class="btn ghost block" style="margin-top:10px"><i class="fa-solid fa-user-secret"></i> Continue as Guest</button>
+      <div class="center" style="margin-top:14px">
+        <a id="btnForgot" class="dim" style="font-size:11.5px;cursor:pointer">Forgot password?</a>
+      </div>
+    </div>
+    <div id="authRegister" class="hidden">
+      <label class="fl">Display Name</label>
+      <input id="regName" class="input" type="text" placeholder="Trader name" style="margin-bottom:13px"/>
+      <label class="fl">Email</label>
+      <input id="regEmail" class="input" type="email" placeholder="you@example.com" style="margin-bottom:13px"/>
+      <label class="fl">Password</label>
+      <input id="regPass" class="input" type="password" placeholder="Minimum 6 characters" style="margin-bottom:18px"/>
+      <button id="btnRegister" class="btn green block"><i class="fa-solid fa-user-plus"></i> Create Account</button>
+    </div>
+    <div style="margin-top:22px;padding-top:16px;border-top:1px solid var(--border);font-size:10.5px;color:var(--mute);line-height:1.65;text-align:center">
+      <i class="fa-solid fa-shield-halved" style="color:var(--cyan)"></i>
+      This platform never guarantees profit and never claims 100% accuracy.
+      All statistics are computed from real completed signals only.
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="app hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-logo"><i class="fa-solid fa-satellite-dish"></i></div>
+      <div class="brand-txt"><b>FX SENTINEL</b><span>AI Signal Terminal</span></div>
+    </div>
+    <nav class="nav" id="nav">
+      <div class="nav-label">Trading</div>
+      <div class="nav-item active" data-view="dashboard"><i class="fa-solid fa-gauge-high"></i> Dashboard</div>
+      <div class="nav-item" data-view="signals"><i class="fa-solid fa-bolt"></i> Live Signals <span class="pill" id="navActiveCount">0</span></div>
+      <div class="nav-item" data-view="history"><i class="fa-solid fa-clock-rotate-left"></i> History</div>
+      <div class="nav-item" data-view="paper"><i class="fa-solid fa-flask"></i> Paper Trading</div>
+      <div class="nav-label">Intelligence</div>
+      <div class="nav-item" data-view="brain"><i class="fa-solid fa-brain"></i> AI Brain</div>
+      <div class="nav-item" data-view="news"><i class="fa-solid fa-newspaper"></i> News Center <span class="pill" id="navNewsRisk" style="background:rgba(255,159,67,.18);color:#ffc286">—</span></div>
+      <div class="nav-item" data-view="learning"><i class="fa-solid fa-graduation-cap"></i> Learning</div>
+      <div class="nav-label">Account</div>
+      <div class="nav-item" data-view="profile"><i class="fa-solid fa-user"></i> Profile</div>
+      <div class="nav-item" data-view="settings"><i class="fa-solid fa-sliders"></i> Settings</div>
+      <div class="nav-item" data-view="admin"><i class="fa-solid fa-user-shield"></i> Admin Panel</div>
+    </nav>
+    <div class="sidebar-foot">
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.028)">
+        <div id="avatarInitials" style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--blue),var(--cyan));display:grid;place-items:center;font-size:12px;font-weight:800;color:#03101f">–</div>
+        <div style="min-width:0;flex:1">
+          <div id="sideUserName" style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Guest</div>
+          <div id="sideUserRole" style="font-size:9.5px;color:var(--mute);letter-spacing:.5px">TRADER</div>
+        </div>
+        <button class="btn xs ghost" id="btnLogout" title="Sign out"><i class="fa-solid fa-power-off"></i></button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="btn sm ghost menu-btn" id="menuBtn"><i class="fa-solid fa-bars"></i></button>
+      <h1 id="pageTitle">Dashboard <small id="pageSub">Platform overview</small></h1>
+      <div class="topbar-spacer"></div>
+      <div class="status-chip"><span class="dot" id="dotDeriv"></span><span id="txtDeriv">Deriv</span></div>
+      <div class="status-chip"><span class="dot" id="dotAI"></span><span id="txtAI">AI</span></div>
+      <div class="status-chip"><span class="dot" id="dotDB"></span><span id="txtDB">DB</span></div>
+      <div class="status-chip"><span class="dot" id="dotNews"></span><span id="txtNews">News</span></div>
+      <button class="btn sm" id="btnAnalyzeNow"><i class="fa-solid fa-radar"></i> Analyze Now</button>
+    </header>
+
+    <div class="views">
+      <!-- DASHBOARD -->
+      <section id="view-dashboard" class="view active">
+        <div id="dashConfigWarn"></div>
+        <div class="grid g5" style="margin-bottom:16px">
+          <div class="stat c"><div class="lbl"><i class="fa-solid fa-brain"></i> AI Brain</div><div class="val" id="dAIStatus">—</div><div class="sub" id="dAISub">Standby</div></div>
+          <div class="stat"><div class="lbl"><i class="fa-solid fa-chart-line"></i> Market</div><div class="val" id="dMarket">—</div><div class="sub" id="dMarketSub">—</div></div>
+          <div class="stat b"><div class="lbl"><i class="fa-solid fa-bolt"></i> Active Signals</div><div class="val" id="dActive">0</div><div class="sub" id="dActiveSub">BUY 0 · SELL 0</div></div>
+          <div class="stat"><div class="lbl"><i class="fa-solid fa-ban"></i> NO TRADE</div><div class="val" id="dNoTrade">0</div><div class="sub">Today's decisions</div></div>
+          <div class="stat y"><div class="lbl"><i class="fa-solid fa-trophy"></i> Win Rate</div><div class="val" id="dWinRate">—</div><div class="sub" id="dWinRateSub">Real completed signals</div></div>
+        </div>
+        <div class="grid g-2-1" style="margin-bottom:16px">
+          <div class="card">
+            <div class="card-hd"><h3><i class="fa-solid fa-bolt"></i> Live Signals</h3>
+              <button class="btn xs ghost" data-goto="signals">View all <i class="fa-solid fa-arrow-right"></i></button></div>
+            <div class="card-bd" id="dashSignals"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-shield-halved"></i> News Risk</h3></div>
+              <div class="card-bd" id="dashNewsRisk"></div></div>
+            <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-graduation-cap"></i> Learning</h3></div>
+              <div class="card-bd" id="dashLearning"></div></div>
+          </div>
+        </div>
+        <div class="grid g-2-1">
+          <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Results</h3>
+            <button class="btn xs ghost" data-goto="history">History <i class="fa-solid fa-arrow-right"></i></button></div>
+            <div class="card-bd" id="dashRecent"></div></div>
+          <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-coins"></i> Performance</h3></div>
+            <div class="card-bd" id="dashPerf"></div></div>
+        </div>
+      </section>
+
+      <!-- LIVE SIGNALS -->
+      <section id="view-signals" class="view">
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-pad" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+            <div class="chips" id="sigFilters">
+              <div class="chip active" data-sigfilter="active">Active</div>
+              <div class="chip" data-sigfilter="pending">Entry Pending</div>
+              <div class="chip" data-sigfilter="weakening">Weakening</div>
+              <div class="chip" data-sigfilter="all">All Open</div>
+            </div>
+            <div class="topbar-spacer"></div>
+            <div class="dim" style="font-size:11.5px" id="sigLastScan">Last scan: —</div>
+          </div>
+        </div>
+        <div class="grid g3" id="signalsGrid"></div>
+      </section>
+
+      <!-- HISTORY -->
+      <section id="view-history" class="view">
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-pad" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+            <div class="chips" id="histFilters">
+              <div class="chip active" data-histfilter="today">Today</div>
+              <div class="chip" data-histfilter="7d">7 Days</div>
+              <div class="chip" data-histfilter="30d">30 Days</div>
+              <div class="chip" data-histfilter="all">All Time</div>
+            </div>
+            <div class="topbar-spacer"></div>
+            <div class="chips">
+              <div class="chip active" data-histsrc="real">Real</div>
+              <div class="chip" data-histsrc="paper">Paper</div>
+            </div>
+            <button class="btn sm ghost" id="btnExportHistory"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+          </div>
+        </div>
+        <div class="grid g5" style="margin-bottom:16px" id="histStats"></div>
+        <div class="card">
+          <div class="card-hd"><h3><i class="fa-solid fa-clock-rotate-left"></i> Signal History</h3>
+            <span class="badge mute" id="histCount">0 records</span></div>
+          <div class="card-bd" style="padding:0"><div class="tbl-wrap" id="histTable"></div></div>
+        </div>
+      </section>
+
+      <!-- PAPER -->
+      <section id="view-paper" class="view">
+        <div class="cfg-banner" style="background:linear-gradient(90deg,rgba(47,123,255,.12),rgba(47,123,255,.03));border-color:rgba(47,123,255,.4);color:#a9c9ff">
+          <i class="fa-solid fa-flask"></i>
+          <div><b>Simulation mode.</b> Paper results are stored in a completely separate ledger and are never mixed with real performance statistics.</div>
+        </div>
+        <div class="grid g5" style="margin-bottom:16px" id="paperStats"></div>
+        <div class="card">
+          <div class="card-hd"><h3><i class="fa-solid fa-flask"></i> Paper Signals</h3>
+            <button class="btn sm green" id="btnPaperToggle"><i class="fa-solid fa-play"></i> Enable Paper Mode</button></div>
+          <div class="card-bd" style="padding:0"><div class="tbl-wrap" id="paperTable"></div></div>
+        </div>
+      </section>
+
+      <!-- AI BRAIN -->
+      <section id="view-brain" class="view">
+        <div class="grid g-1-2" style="margin-bottom:16px">
+          <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-brain"></i> Brain Status</h3></div>
+            <div class="card-bd">
+              <div class="evidence-row"><div class="k"><i class="fa-solid fa-microchip"></i> Engine</div><div class="v" id="brainEngine">—</div></div>
+              <div class="evidence-row"><div class="k"><i class="fa-solid fa-circle-check"></i> State</div><div class="v" id="brainState">—</div></div>
+              <div class="evidence-row"><div class="k"><i class="fa-solid fa-clock"></i> Last Analysis</div><div class="v" id="brainLast">—</div></div>
+              <div class="evidence-row"><div class="k"><i class="fa-solid fa-list-check"></i> Decisions Today</div><div class="v" id="brainDecisions">—</div></div>
+              <div class="evidence-row"><div class="k"><i class="fa-solid fa-database"></i> Experiences Stored</div><div class="v" id="brainExp">—</div></div>
+            </div>
+          </div>
+          <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-diagram-project"></i> Decision Pipeline</h3></div>
+            <div class="card-bd">
+              <div style="display:flex;flex-wrap:wrap;gap:9px;align-items:center;font-size:11px;color:var(--dim);font-weight:600">
+                <span class="tag">MARKET DATA</span><i class="fa-solid fa-arrow-right dim"></i>
+                <span class="tag">MARKET ANALYSIS</span><i class="fa-solid fa-arrow-right dim"></i>
+                <span class="tag">MTF CONFIRMATION</span><i class="fa-solid fa-arrow-right dim"></i>
+                <span class="tag">NEWS / RISK CHECK</span><i class="fa-solid fa-arrow-right dim"></i>
+                <span class="tag">HISTORICAL EXPERIENCE</span><i class="fa-solid fa-arrow-right dim"></i>
+                <span class="tag">RISK ANALYSIS</span><i class="fa-solid fa-arrow-right dim"></i>
+                <span class="tag">BUY / SELL / NO TRADE</span><i class="fa-solid fa-arrow-right dim"></i>
+                <span class="tag">MONITOR</span><i class="fa-solid fa-arrow-right dim"></i>
+                <span class="tag">RESULT</span><i class="fa-solid fa-arrow-right dim"></i>
+                <span class="tag">LEARN</span>
+              </div>
+              <div style="margin-top:16px;font-size:11.5px;color:var(--mute);line-height:1.65">
+                The brain exposes only transparent evidence summaries. Hidden reasoning is never published.
+                Confidence is an AI strength score — it is <b>not</b> a probability of success.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-hd"><h3><i class="fa-solid fa-microscope"></i> Instrument Analysis</h3>
+            <select id="brainPairSelect" class="input" style="width:190px;padding:7px 11px;font-size:12px"></select></div>
+          <div class="card-bd" id="brainDetail"></div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Brain Decisions</h3></div>
+          <div class="card-bd" style="padding:0"><div class="tbl-wrap" id="brainLog"></div></div>
+        </div>
+      </section>
+
+      <!-- NEWS -->
+      <section id="view-news" class="view">
+        <div class="grid g-2-1" style="margin-bottom:16px">
+          <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-calendar-days"></i> Economic Calendar</h3>
+            <button class="btn xs ghost" id="btnRefreshNews"><i class="fa-solid fa-rotate"></i> Refresh</button></div>
+            <div class="card-bd" style="padding:0"><div class="tbl-wrap" id="newsCalendar"></div></div></div>
+          <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-triangle-exclamation"></i> Risk State</h3></div>
+            <div class="card-bd" id="newsRiskPanel"></div></div>
+        </div>
+        <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-newspaper"></i> Market Headlines &amp; Sentiment</h3></div>
+          <div class="card-bd" id="newsHeadlines"></div></div>
+      </section>
+
+      <!-- LEARNING -->
+      <section id="view-learning" class="view">
+        <div class="cfg-banner" style="background:linear-gradient(90deg,rgba(34,211,238,.1),rgba(34,211,238,.02));border-color:rgba(34,211,238,.38);color:#a5e9f5">
+          <i class="fa-solid fa-graduation-cap"></i>
+          <div>The learning engine stores completed experiences and identifies patterns. It applies controlled historical experience to future decisions — it does not blindly rewrite the model after every trade.</div>
+        </div>
+        <div class="grid g5" style="margin-bottom:16px" id="learnStats"></div>
+        <div class="grid g2" style="margin-bottom:16px">
+          <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-chart-simple"></i> Real vs Paper</h3></div><div class="card-bd" id="learnSplit"></div></div>
+          <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-chart-line"></i> Cumulative R (Real)</h3></div><div class="card-bd"><canvas id="equityChart" height="180"></canvas></div></div>
+        </div>
+        <div class="grid g3" style="margin-bottom:16px">
+          <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-star"></i> Best Pairs</h3></div><div class="card-bd" id="learnBestPairs"></div></div>
+          <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-clock"></i> Best Timeframes</h3></div><div class="card-bd" id="learnBestTf"></div></div>
+          <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-thumbs-down"></i> Weak Setups</h3></div><div class="card-bd" id="learnWeak"></div></div>
+        </div>
+        <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-database"></i> Recent Experiences</h3>
+          <span class="badge mute" id="learnExpCount">0</span></div>
+          <div class="card-bd" style="padding:0"><div class="tbl-wrap" id="learnTable"></div></div></div>
+      </section>
+
+      <!-- PROFILE -->
+      <section id="view-profile" class="view">
+        <div class="grid g2">
+          <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-user"></i> Profile</h3></div>
+            <div class="card-bd">
+              <div style="display:flex;align-items:center;gap:16px;margin-bottom:22px">
+                <div id="profAvatar" style="width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--blue),var(--cyan));display:grid;place-items:center;font-size:24px;font-weight:800;color:#03101f">–</div>
+                <div>
+                  <div style="font-size:18px;font-weight:700" id="profName">—</div>
+                  <div class="muted" style="font-size:12px" id="profEmail">—</div>
+                  <div style="margin-top:7px"><span class="badge info" id="profRole">TRADER</span></div>
+                </div>
+              </div>
+              <label class="fl">Display Name</label>
+              <input id="profNameInput" class="input" style="margin-bottom:13px"/>
+              <label class="fl">Trading Experience</label>
+              <select id="profExp" class="input" style="margin-bottom:13px">
+                <option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Professional</option>
+              </select>
+              <label class="fl">Preferred Timeframes</label>
+              <input id="profTf" class="input" placeholder="e.g. M15, H1, H4" style="margin-bottom:18px"/>
+              <button class="btn block" id="btnSaveProfile"><i class="fa-solid fa-floppy-disk"></i> Save Profile</button>
+            </div>
+          </div>
+          <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-chart-pie"></i> Your Account</h3></div>
+            <div class="card-bd">
+              <div class="evidence-row"><div class="k"><i class="fa-solid fa-id-badge"></i> User ID</div><div class="v mono" style="font-size:11px" id="profUid">—</div></div>
+              <div class="evidence-row"><div class="k"><i class="fa-solid fa-calendar"></i> Member Since</div><div class="v" id="profSince">—</div></div>
+              <div class="evidence-row"><div class="k"><i class="fa-solid fa-database"></i> Storage Mode</div><div class="v" id="profStorage">—</div></div>
+              <div class="evidence-row"><div class="k"><i class="fa-solid fa-shield-halved"></i> Role</div><div class="v" id="profRole2">—</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="view-settings" class="view">
+        <div class="grid g2">
+          <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-sliders"></i> Engine Settings</h3></div>
+            <div class="card-bd">
+              <label class="fl">Analysis Interval (minutes)</label>
+              <input id="setInterval" class="input" type="number" min="1" max="240" style="margin-bottom:13px"/>
+              <label class="fl">Monitoring Interval (seconds)</label>
+              <input id="setMonitor" class="input" type="number" min="5" max="300" style="margin-bottom:13px"/>
+              <label class="fl">Minimum Confidence to Publish</label>
+              <input id="setMinConf" class="input" type="number" min="0" max="100" style="margin-bottom:13px"/>
+              <label class="fl">Max Concurrent Signals</label>
+              <input id="setMaxSig" class="input" type="number" min="1" max="20" style="margin-bottom:13px"/>
+              <label class="fl">Signal Expiry without Entry (hours)</label>
+              <input id="setExpiry" class="input" type="number" min="1" max="72" style="margin-bottom:18px"/>
+              <button class="btn block" id="btnSaveSettings"><i class="fa-solid fa-floppy-disk"></i> Save Settings</button>
+            </div>
+          </div>
+          <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-plug-circle-check"></i> Service Status</h3></div>
+            <div class="card-bd" id="settingsStatus"></div></div>
+        </div>
+      </section>
+
+      <!-- ADMIN -->
+      <section id="view-admin" class="view">
+        <div id="adminDenied" class="empty hidden"><i class="fa-solid fa-lock"></i><b>Administrator access required</b><span>Your account does not have the admin role.</span></div>
+        <div id="adminPanel" class="hidden">
+          <div class="grid g4" style="margin-bottom:16px" id="adminStats"></div>
+          <div class="grid g2" style="margin-bottom:16px">
+            <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-users"></i> User Management</h3></div>
+              <div class="card-bd" style="padding:0"><div class="tbl-wrap" id="adminUsers"></div></div></div>
+            <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-heart-pulse"></i> System Health</h3></div>
+              <div class="card-bd" id="adminHealth"></div></div>
+          </div>
+          <div class="grid g2" style="margin-bottom:16px">
+            <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-bolt"></i> Signal Management</h3></div>
+              <div class="card-bd" style="padding:0"><div class="tbl-wrap" id="adminSignals"></div></div></div>
+            <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-microchip"></i> AI Control</h3></div>
+              <div class="card-bd" id="adminAIControl"></div></div>
+          </div>
+          <div class="grid g2">
+            <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-triangle-exclamation"></i> Error Logs</h3>
+              <button class="btn xs ghost" id="btnClearLogs"><i class="fa-solid fa-trash"></i> Clear</button></div>
+              <div class="card-bd" style="padding:0"><div class="tbl-wrap" id="adminLogs"></div></div></div>
+            <div class="card"><div class="card-hd"><h3><i class="fa-solid fa-newspaper"></i> News Control</h3></div>
+              <div class="card-bd" id="adminNewsControl"></div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toasts"></div>
+
+<script>
+/* =================================================================================================
+   FX SENTINEL — AI FOREX SIGNAL & LEARNING PLATFORM
+   Single-file frontend. Complete and self-contained.
+   ================================================================================================= */
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 1 — CONFIGURATION  (FILL THESE WITH YOUR OWN CREDENTIALS)
+   ------------------------------------------------------------------------------------------------ */
+const CONFIG = {
+  /* Secure backend proxy (strongly recommended — keeps secret keys off the client). */
+  PROXY_BASE_URL: "https://fx-proxy-production-b628.up.railway.app/api",              // e.g. "https://your-backend.example.com/api"
+  ALLOW_DIRECT_API_CALLS: false,   // dev-only. NEVER true in production.
+
+  /* Deriv — market data is public; the API key is only needed server-side for authenticated calls. */
+  DERIV_APP_ID: "1089",
+  DERIV_API_KEY: "pat_915eea781fb3b374bf1768ab01cbe00d3e19acd3c791c574425fb7aa1aa876a7",
+  DERIV_WS_URL: "wss://ws.derivws.com/websockets/v3",
+
+  /* Google Gemini — AI Brain. Keep this server-side in production. */
+  GEMINI_API_KEY: "
+AQ.Ab8RN6JQApefHONukhtMqNkLM6B67eZxD9t91Tm1woBIofFScg",
+  GEMINI_MODEL: "gemini-2.0-flash",
+  GEMINI_ENDPOINT: "https://generativelanguage.googleapis.com/v1beta/models",
+
+  /* Marketaux — news + sentiment. Keep this server-side in production. */
+  MARKETAUX_API_KEY: "i8Js7CY9J3utrufCpl0JKvVDDz1iH3MBKBjdJXfw",
+  MARKETAUX_ENDPOINT: "https://api.marketaux.com/v1/news/all",
+
+  /* FinanceCalendar — economic events. */
+  FINANCECALENDAR_BASE: "https://www.financecalendar.com/wp-json/fc/v1",
+
+  /* Firebase — auth + database. */
+  const firebaseConfig = {
+  apiKey: "AIzaSyCRJXXI_JOu7LAJYJsrS5MpHytteRDmjyA",
+  authDomain: "forfama-aec8f.firebaseapp.com",
+  databaseURL: "https://forfama-aec8f-default-rtdb.firebaseio.com",
+  projectId: "forfama-aec8f",
+  storageBucket: "forfama-aec8f.firebasestorage.app",
+  messagingSenderId: "729060495958",
+  appId: "1:729060495958:web:c2ca68bcd5c41f4fd621f7",
+  measurementId: "G-4127QZB1M1"
+};
+
+  ANALYSIS_INTERVAL_MIN: 15,
+  MONITOR_INTERVAL_SEC: 30,
+  MIN_CONFIDENCE: 65,
+  MAX_CONCURRENT_SIGNALS: 8,
+  SIGNAL_EXPIRY_HOURS: 12,
+  MIN_CLOSED_FOR_STATS: 20,
+
+  CACHE_TTL: { calendar: 30*60*1000, news: 15*60*1000 },
+
+  VERSION: "1.0.0"
+};
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 2 — INSTRUMENTS
+   ------------------------------------------------------------------------------------------------ */
+const PAIRS = [
+  { id:"EURUSD", label:"EUR/USD", deriv:"frxEURUSD", digits:5, pip:0.0001, cur:["EUR","USD"] },
+  { id:"GBPUSD", label:"GBP/USD", deriv:"frxGBPUSD", digits:5, pip:0.0001, cur:["GBP","USD"] },
+  { id:"USDJPY", label:"USD/JPY", deriv:"frxUSDJPY", digits:3, pip:0.01,   cur:["USD","JPY"] },
+  { id:"USDCHF", label:"USD/CHF", deriv:"frxUSDCHF", digits:5, pip:0.0001, cur:["USD","CHF"] },
+  { id:"AUDUSD", label:"AUD/USD", deriv:"frxAUDUSD", digits:5, pip:0.0001, cur:["AUD","USD"] },
+  { id:"USDCAD", label:"USD/CAD", deriv:"frxUSDCAD", digits:5, pip:0.0001, cur:["USD","CAD"] },
+  { id:"NZDUSD", label:"NZD/USD", deriv:"frxNZDUSD", digits:5, pip:0.0001, cur:["NZD","USD"] },
+  { id:"EURJPY", label:"EUR/JPY", deriv:"frxEURJPY", digits:3, pip:0.01,   cur:["EUR","JPY"] },
+  { id:"GBPJPY", label:"GBP/JPY", deriv:"frxGBPJPY", digits:3, pip:0.01,   cur:["GBP","JPY"] },
+  { id:"XAUUSD", label:"XAU/USD", deriv:"frxXAUUSD", digits:3, pip:0.01,   cur:["XAU","USD"] }
+];
+const PAIR_MAP = Object.fromEntries(PAIRS.map(p => [p.id, p]));
+
+const TIMEFRAMES = [
+  { id:"M15", granularity:900,  label:"M15" },
+  { id:"H1",  granularity:3600, label:"H1"  },
+  { id:"H4",  granularity:14400,label:"H4"  }
+];
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 3 — UTILITIES
+   ------------------------------------------------------------------------------------------------ */
+const $  = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const now = () => Date.now();
+const uid = p => (p||"id") + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+
+function esc(s){
+  if(s === null || s === undefined) return "";
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function fmtPrice(v, pairId){
+  if(v === null || v === undefined || isNaN(v)) return "—";
+  const p = PAIR_MAP[pairId]; const d = p ? p.digits : 5;
+  return Number(v).toFixed(d);
+}
+function fmtNum(v, d=2){ return (v===null||v===undefined||isNaN(v)) ? "—" : Number(v).toFixed(d); }
+function fmtPct(v){ return (v===null||v===undefined||isNaN(v)) ? "—" : Number(v).toFixed(1) + "%"; }
+function fmtTime(ts){
+  if(!ts) return "—";
+  return new Date(ts).toLocaleString(undefined,{month:"short",day:"2-digit",hour:"2-digit",minute:"2-digit"});
+}
+function timeAgo(ts){
+  if(!ts) return "—";
+  let s = Math.floor((now() - ts)/1000); if(s<0) s=0;
+  if(s < 60) return s + "s";
+  const m = Math.floor(s/60); if(m < 60) return m + " min";
+  const h = Math.floor(m/60); if(h < 24) return h + "h " + (m%60) + "m";
+  const d = Math.floor(h/24); return d + "d " + (h%24) + "h";
+}
+function durationStr(ms){
+  if(!ms || ms < 0) return "—";
+  const m = Math.floor(ms/60000);
+  if(m < 60) return m + " min";
+  const h = Math.floor(m/60);
+  if(h < 24) return h + "h " + (m%60) + "m";
+  return Math.floor(h/24) + "d " + (h%24) + "h";
+}
+function dayStart(ts){ const d = new Date(ts); d.setHours(0,0,0,0); return d.getTime(); }
+function escapeHtml(s){ return esc(s); }
+
+function toast(title, msg="", kind="info", ms=5000){
+  const icons = { ok:"fa-circle-check", err:"fa-circle-exclamation", warn:"fa-triangle-exclamation", info:"fa-circle-info" };
+  const el = document.createElement("div");
+  el.className = "toast " + kind;
+  el.innerHTML = `<i class="fa-solid ${icons[kind]||icons.info}"></i><div><b>${esc(title)}</b>${msg?`<span>${esc(msg)}</span>`:""}</div>`;
+  $("#toasts").appendChild(el);
+  setTimeout(() => { el.style.opacity = "0"; el.style.transform = "translateX(110%)"; el.style.transition = ".3s"; setTimeout(() => el.remove(), 320); }, ms);
+}
+
+const SVC = { deriv:{el:"dotDeriv",txt:"txtDeriv",label:"Deriv"}, ai:{el:"dotAI",txt:"txtAI",label:"AI"}, db:{el:"dotDB",txt:"txtDB",label:"DB"}, news:{el:"dotNews",txt:"txtNews",label:"News"} };
+function setService(key, state, text){
+  const s = SVC[key]; if(!s) return;
+  const dot = document.getElementById(s.el), txt = document.getElementById(s.txt);
+  if(dot) dot.className = "dot " + (state==="on" ? "on" : state==="warn" ? "warn" : state==="err" ? "err" : "");
+  if(txt) txt.textContent = text || s.label;
+}
+
+const RUNTIME_LOGS = [];
+async function logEvent(level, source, message, meta){
+  const entry = { level, source, message: String(message).slice(0,600), at: now() };
+  RUNTIME_LOGS.unshift(entry);
+  if(RUNTIME_LOGS.length > 300) RUNTIME_LOGS.pop();
+  if(level === "error") console.error("[FXS]", source, message, meta || "");
+  else if(level === "warn") console.warn("[FXS]", source, message);
+  else console.log("[FXS]", source, message);
+  try{ if(FB.ready && FB.db) await FB.db.ref("logs").push(entry); }catch(e){}
+}
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 4 — GLOBAL STATE
+   ------------------------------------------------------------------------------------------------ */
+const STATE = {
+  user: null, isAdmin: false, persistence: false,
+  profile: {},
+  settings: {
+    analysisInterval: CONFIG.ANALYSIS_INTERVAL_MIN,
+    monitorInterval: CONFIG.MONITOR_INTERVAL_SEC,
+    minConfidence: CONFIG.MIN_CONFIDENCE,
+    maxSignals: CONFIG.MAX_CONCURRENT_SIGNALS,
+    expiryHours: CONFIG.SIGNAL_EXPIRY_HOURS,
+    paperMode: false
+  },
+  signals: {}, history: {}, paper: {}, experiences: {}, analysisLog: {},
+  market: {}, candles: {}, candlesMeta: {},
+  news: { events: [], headlines: [], risk: "UNKNOWN", lastNews: 0, lastCal: 0 },
+  perf: null,
+  brain: { lastRun: 0, running: false, lastPair: null },
+  ui: { view:"dashboard", sigFilter:"active", histFilter:"today", histSrc:"real" }
+};
+window.STATE = STATE;
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 5 — FIREBASE LAYER
+   ------------------------------------------------------------------------------------------------ */
+const FB = { app:null, auth:null, db:null, ready:false, configured:false };
+
+function firebaseConfigured(){
+  const c = CONFIG.FIREBASE_CONFIG;
+  return !!(c && c.apiKey && !c.apiKey.startsWith("YOUR_") && c.databaseURL && !c.databaseURL.includes("YOUR_PROJECT"));
+}
+function initFirebase(){
+  if(!firebaseConfigured()){
+    FB.configured = false; setService("db","err","DB: not configured"); return false;
+  }
+  try{
+    FB.app  = firebase.initializeApp(CONFIG.FIREBASE_CONFIG);
+    FB.auth = firebase.auth();
+    FB.db   = firebase.database();
+    FB.ready = true; FB.configured = true;
+    FB.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
+    setService("db","on","DB: connected");
+    return true;
+  }catch(e){
+    FB.ready = false; setService("db","err","DB: error");
+    logEvent("error","firebase","Init failed: " + e.message);
+    return false;
+  }
+}
+
+const DB = {
+  async get(path){
+    if(!FB.ready) return null;
+    try{ const s = await FB.db.ref(path).get(); return s.exists() ? s.val() : null; }
+    catch(e){ logEvent("error","db-get", path + " :: " + e.message); return null; }
+  },
+  async set(path, val){
+    if(!FB.ready) return false;
+    try{ await FB.db.ref(path).set(val); return true; }
+    catch(e){ logEvent("error","db-set", path + " :: " + e.message); return false; }
+  },
+  async update(path, val){
+    if(!FB.ready) return false;
+    try{ await FB.db.ref(path).update(val); return true; }
+    catch(e){ logEvent("error","db-update", path + " :: " + e.message); return false; }
+  },
+  async push(path, val){
+    if(!FB.ready) return null;
+    try{ const r = await FB.db.ref(path).push(val); return r.key; }
+    catch(e){ logEvent("error","db-push", path + " :: " + e.message); return null; }
+  },
+  on(path, cb){
+    if(!FB.ready) return () => {};
+    const ref = FB.db.ref(path);
+    const h = ref.on("value", s => cb(s.val() || {}), e => logEvent("error","db-on", path + " :: " + e.message));
+    return () => ref.off("value", h);
+  }
+};
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 6 — API ACCESS LAYER
+   ------------------------------------------------------------------------------------------------ */
+const API = {
+  hasProxy(){ return !!CONFIG.PROXY_BASE_URL && CONFIG.PROXY_BASE_URL.startsWith("http"); },
+  url(p){ return CONFIG.PROXY_BASE_URL.replace(/\/$/, "") + p; },
+  async proxyGet(path, params){
+    const qs = params ? "?" + new URLSearchParams(params).toString() : "";
+    const res = await fetch(this.url(path) + qs, { headers:{ "Accept":"application/json" } });
+    if(!res.ok) throw new Error("Proxy " + res.status);
+    return res.json();
+  },
+  async proxyPost(path, body){
+    const res = await fetch(this.url(path), { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body) });
+    if(!res.ok) throw new Error("Proxy " + res.status);
+    return res.json();
+  }
+};
+
+/* Gemini — AI Brain */
+async function callGemini(prompt){
+  if(API.hasProxy()){
+    try{
+      const out = await API.proxyPost("/gemini", { prompt, model: CONFIG.GEMINI_MODEL });
+      setService("ai","on","AI: online");
+      return out;
+    }catch(e){
+      setService("ai","err","AI: proxy error");
+      logEvent("error","gemini-proxy", e.message);
+      throw e;
+    }
+  }
+  if(CONFIG.ALLOW_DIRECT_API_CALLS && CONFIG.GEMINI_API_KEY && !CONFIG.GEMINI_API_KEY.startsWith("YOUR_")){
+    const url = `${CONFIG.GEMINI_ENDPOINT}/${CONFIG.GEMINI_MODEL}:generateContent?key=${encodeURIComponent(CONFIG.GEMINI_API_KEY)}`;
+    const body = {
+      contents: [{ role:"user", parts:[{ text: prompt }] }],
+      generationConfig: { temperature:0.25, topP:0.9, maxOutputTokens:2048, responseMimeType:"application/json" }
+    };
+    const res = await fetch(url, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body) });
+    if(!res.ok){ const t = await res.text().catch(()=>""); throw new Error("Gemini " + res.status + " " + t.slice(0,160)); }
+    const json = await res.json();
+    const text = json?.candidates?.[0]?.content?.parts?.map(p=>p.text).join("") || "";
+    setService("ai","on","AI: online");
+    return { text };
+  }
+  setService("ai","err","AI: not configured");
+  throw new Error("AI_UNAVAILABLE");
+}
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 7 — DERIV MARKET DATA (WebSocket, public feed — no API key required)
+   ------------------------------------------------------------------------------------------------ */
+const Deriv = {
+  ws:null, subs:{}, prices:{}, connected:false, reconnectTimer:null, reqId:1,
+
+  connect(){
+    if(this.ws && (this.ws.readyState === 0 || this.ws.readyState === 1)) return;
+    try{
+      const url = CONFIG.DERIV_WS_URL + "?app_id=" + encodeURIComponent(CONFIG.DERIV_APP_ID || "1089");
+      this.ws = new WebSocket(url);
+    }catch(e){
+      setService("deriv","err","Deriv: ws error");
+      logEvent("error","deriv","WebSocket creation failed: " + e.message);
+      return;
+    }
+    this.ws.onopen = () => {
+      this.connected = true;
+      setService("deriv","on","Deriv: live");
+      logEvent("info","deriv","WebSocket connected");
+      // Resubscribe to any pending streams
+      Object.values(this.subs).forEach(s => this._sendTick(s.symbol, s.id));
+    };
+    this.ws.onmessage = (ev) => this._onMessage(ev);
+    this.ws.onerror = () => { setService("deriv","err","Deriv: error"); };
+    this.ws.onclose = () => {
+      this.connected = false;
+      setService("deriv","warn","Deriv: reconnecting");
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = setTimeout(() => this.connect(), 4000);
+    };
+  },
+
+  _sendTick(symbol, reqId){
+    if(!this.ws || this.ws.readyState !== 1) return;
+    this.ws.send(JSON.stringify({ ticks: symbol, subscribe: 1, req_id: reqId }));
+  },
+
+  _onMessage(ev){
+    let data; try{ data = JSON.parse(ev.data); }catch(e){ return; }
+    if(data.error){
+      // Silent non-fatal subscription errors
+      if(data.error.code !== "AlreadySubscribed") logEvent("warn","deriv","API error: " + data.error.message);
+      return;
+    }
+    const msg = data.msg_type;
+    if(msg === "tick" && data.tick){
+      const sym = data.tick.symbol;
+      const price = parseFloat(data.tick.quote);
+      const prev = this.prices[sym]?.price;
+      this.prices[sym] = { price, prev, at: now(), symbol: sym };
+      // Update STATE.market keyed by pairId
+      const pair = PAIRS.find(p => p.deriv === sym);
+      if(pair){
+        const m = STATE.market[pair.id] || { price:null, prev:null, changePct:0, at:0 };
+        const old = m.price;
+        m.price = price; m.prev = old;
+        m.at = now();
+        if(old) m.changePct = ((price - old) / old) * 100;
+        STATE.market[pair.id] = m;
+        onPriceTick(pair.id, price);
+      }
+    }
+  },
+
+  subscribe(pairId){
+    const p = PAIR_MAP[pairId]; if(!p) return;
+    if(this.subs[pairId]) return;
+    const id = this.reqId++;
+    this.subs[pairId] = { id, symbol: p.deriv };
+    this.connect();
+    this._sendTick(p.deriv, id);
+  },
+
+  subscribeAll(){ PAIRS.forEach(p => this.subscribe(p.id)); },
+
+  getPrice(pairId){ return STATE.market[pairId]?.price ?? null; },
+  getMarket(pairId){ return STATE.market[pairId] || { price:null, prev:null, changePct:0, at:0 }; }
+};
+
+/* On every price tick, monitor active signals */
+const _pendingTick = {};
+function onPriceTick(pairId, price){
+  _pendingTick[pairId] = price;
+  // Throttle signal monitoring per pair
+  if(!_pendingTick["_t_" + pairId]){
+    _pendingTick["_t_" + pairId] = true;
+    setTimeout(() => {
+      _pendingTick["_t_" + pairId] = false;
+      const p = _pendingTick[pairId];
+      if(p) monitorSignalsForPair(pairId, p);
+    }, 400);
+  }
+  // Update UI price texts
+  $$("[data-price-pair='" + pairId + "']").forEach(el => { el.textContent = fmtPrice(price, pairId); });
+}
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 8 — CANDLE SYNTHESIS & INDICATORS
+   Deriv WS also supports history, but for lean operation we build synthetic candles from ticks.
+   Indicators computed on rolling windows. Real market data only.
+   ------------------------------------------------------------------------------------------------ */
+const Candle = {
+  history: {}, // { pairId_tf: [ {t,o,h,l,c} ] }
+
+  push(pairId, tfId, price, ts){
+    const key = pairId + "_" + tfId;
+    const tf = TIMEFRAMES.find(t => t.id === tfId); if(!tf) return;
+    const bucket = Math.floor(ts / (tf.granularity * 1000)) * tf.granularity * 1000;
+    const arr = this.history[key] || (this.history[key] = []);
+    let last = arr[arr.length - 1];
+    if(!last || last.t !== bucket){
+      arr.push({ t:bucket, o:price, h:price, l:price, c:price });
+      if(arr.length > 300) arr.shift();
+    } else {
+      last.h = Math.max(last.h, price);
+      last.l = Math.min(last.l, price);
+      last.c = price;
+    }
+  },
+
+  get(pairId, tfId){ return this.history[pairId + "_" + tfId] || []; },
+
+  warm(pairId, tfId, count=220){ return this.get(pairId, tfId).slice(-count); }
+};
+
+function ema(values, period){
+  if(!values || values.length < period) return null;
+  const k = 2 / (period + 1);
+  let e = values.slice(0, period).reduce((a,b)=>a+b,0) / period;
+  for(let i = period; i < values.length; i++) e = values[i] * k + e * (1 - k);
+  return e;
+}
+function emaSeries(values, period){
+  if(!values || values.length < period) return [];
+  const k = 2/(period+1); const out = [];
+  let e = values.slice(0, period).reduce((a,b)=>a+b,0) / period;
+  out[period-1] = e;
+  for(let i = period; i < values.length; i++){ e = values[i]*k + e*(1-k); out[i] = e; }
+  return out;
+}
+function rsi(values, period=14){
+  if(!values || values.length <= period) return null;
+  let gains = 0, losses = 0;
+  for(let i = 1; i <= period; i++){
+    const d = values[i] - values[i-1];
+    if(d >= 0) gains += d; else losses -= d;
+  }
+  let avgG = gains/period, avgL = losses/period;
+  for(let i = period+1; i < values.length; i++){
+    const d = values[i] - values[i-1];
+    const g = d > 0 ? d : 0, l = d < 0 ? -d : 0;
+    avgG = (avgG*(period-1) + g)/period;
+    avgL = (avgL*(period-1) + l)/period;
+  }
+  if(avgL === 0) return 100;
+  const rs = avgG / avgL;
+  return 100 - 100/(1+rs);
+}
+function atr(candles, period=14){
+  if(!candles || candles.length <= period) return null;
+  const trs = [];
+  for(let i = 1; i < candles.length; i++){
+    const c = candles[i], p = candles[i-1];
+    trs.push(Math.max(c.h - c.l, Math.abs(c.h - p.c), Math.abs(c.l - p.c)));
+  }
+  const use = trs.slice(-period);
+  return use.reduce((a,b)=>a+b,0) / use.length;
+}
+function macd(values){
+  if(!values || values.length < 35) return null;
+  const e12 = ema(values, 12), e26 = ema(values, 26);
+  if(e12 === null || e26 === null) return null;
+  const line = e12 - e26;
+  const series = [];
+  const s12 = emaSeries(values, 12), s26 = emaSeries(values, 26);
+  for(let i = 0; i < values.length; i++){
+    if(s12[i] !== undefined && s26[i] !== undefined) series.push(s12[i] - s26[i]);
+  }
+  const sig = ema(series, 9);
+  return { line, signal: sig, hist: line - (sig ?? line) };
+}
+function adx(candles, period=14){
+  if(!candles || candles.length < period*2) return null;
+  let trs = [], pDM = [], nDM = [];
+  for(let i = 1; i < candles.length; i++){
+    const c = candles[i], p = candles[i-1];
+    const up = c.h - p.h, dn = p.l - c.l;
+    pDM.push(up > dn && up > 0 ? up : 0);
+    nDM.push(dn > up && dn > 0 ? dn : 0);
+    trs.push(Math.max(c.h - c.l, Math.abs(c.h - p.c), Math.abs(c.l - p.c)));
+  }
+  const tr = trs.slice(-period).reduce((a,b)=>a+b,0);
+  if(!tr) return null;
+  const pdi = 100 * (pDM.slice(-period).reduce((a,b)=>a+b,0) / tr);
+  const ndi = 100 * (nDM.slice(-period).reduce((a,b)=>a+b,0) / tr);
+  const dx = 100 * Math.abs(pdi - ndi) / (pdi + ndi || 1);
+  return { adx: dx, pdi, ndi };
+}
+function swingHighsLows(candles, lookback=3){
+  const highs = [], lows = [];
+  for(let i = lookback; i < candles.length - lookback; i++){
+    let isH = true, isL = true;
+    for(let j = 1; j <= lookback; j++){
+      if(candles[i].h <= candles[i-j].h || candles[i].h <= candles[i+j].h) isH = false;
+      if(candles[i].l >= candles[i-j].l || candles[i].l >= candles[i+j].l) isL = false;
+    }
+    if(isH) highs.push({ idx:i, price:candles[i].h, t:candles[i].t });
+    if(isL) lows.push({ idx:i, price:candles[i].l, t:candles[i].t });
+  }
+  return { highs, lows };
+}
+function detectBOS(candles){
+  const { highs, lows } = swingHighsLows(candles, 3);
+  if(highs.length < 2 || lows.length < 2) return { bias:"neutral", bos:false, choch:false };
+  const last = candles[candles.length - 1].c;
+  const lastH = highs[highs.length-1].price, prevH = highs[highs.length-2].price;
+  const lastL = lows[lows.length-1].price,   prevL = lows[lows.length-2].price;
+  const hh = lastH > prevH, hl = lastL > prevL;
+  const lh = lastH < prevH, ll = lastL < prevL;
+  let bias = "neutral", bos = false, choch = false;
+  if(hh && hl){ bias = "bullish"; bos = last > lastH; }
+  else if(lh && ll){ bias = "bearish"; bos = last < lastL; }
+  else { choch = true; }
+  return { bias, bos, choch };
+}
+function liquiditySweep(candles){
+  if(candles.length < 12) return { sweep:"none" };
+  const recent = candles.slice(-12);
+  const before = candles.slice(-24, -12);
+  if(before.length < 5) return { sweep:"none" };
+  const hi = Math.max(...before.map(c=>c.h));
+  const lo = Math.min(...before.map(c=>c.l));
+  const rHi = Math.max(...recent.map(c=>c.h));
+  const rLo = Math.min(...recent.map(c=>c.l));
+  const last = candles[candles.length-1].c;
+  if(rHi > hi && last < hi) return { sweep:"bearish", level:hi };
+  if(rLo < lo && last > lo) return { sweep:"bullish", level:lo };
+  return { sweep:"none" };
+}
+function findFVGs(candles, lookback=30){
+  const arr = candles.slice(-lookback);
+  const gaps = [];
+  for(let i = 2; i < arr.length; i++){
+    const a = arr[i-2], c = arr[i];
+    if(c.l > a.h) gaps.push({ type:"bullish", lo:a.h, hi:c.l, at:c.t });
+    if(c.h < a.l) gaps.push({ type:"bearish", lo:c.h, hi:a.l, at:c.t });
+  }
+  return gaps.slice(-5);
+}
+function orderBlocks(candles){
+  if(candles.length < 8) return [];
+  const out = [];
+  for(let i = candles.length - 8; i < candles.length - 1; i++){
+    const c = candles[i], n = candles[i+1];
+    if(!c || !n) continue;
+    if(c.c < c.o && n.c > c.h) out.push({ type:"bullish", lo:c.l, hi:c.h, t:c.t });
+    if(c.c > c.o && n.c < c.l) out.push({ type:"bearish", lo:c.l, hi:c.h, t:c.t });
+  }
+  return out.slice(-4);
+}
+function supportResistance(candles, lookback=120){
+  const arr = candles.slice(-lookback);
+  if(arr.length < 20) return { supports:[], resistances:[] };
+  const highs = arr.map(c=>c.h), lows = arr.map(c=>c.l);
+  const maxH = Math.max(...highs), minL = Math.min(...lows);
+  const range = maxH - minL || 1;
+  const buckets = Array(12).fill(0).map(()=>({ h:0, l:0 }));
+  arr.forEach(c => {
+    const i = Math.min(11, Math.floor((c.c - minL)/range*12));
+    buckets[i].h += 1; buckets[i].l += 1;
+  });
+  const supports = [], resistances = [];
+  buckets.forEach((b, i) => {
+    const price = minL + (i + 0.5)/12 * range;
+    if(b.l > arr.length/18) supports.push(price);
+    if(b.h > arr.length/18) resistances.push(price);
+  });
+  return { supports, resistances, range };
+}
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 9 — MARKET ANALYSIS (build the evidence object)
+   ------------------------------------------------------------------------------------------------ */
+function analyzePair(pairId){
+  const pair = PAIR_MAP[pairId]; if(!pair) return null;
+  const m = Deriv.getMarket(pairId);
+  if(!m.price) return null;
+
+  // Build candles per timeframe from recent ticks
+  const analysis = { pairId, label:pair.label, price:m.price, tf:{}, evidence:{}, score:0 };
+  let bullishVotes = 0, bearishVotes = 0;
+
+  TIMEFRAMES.forEach(tf => {
+    // Seed from current live price if candle history is short
+    const candles = Candle.get(pairId, tf.id);
+    if(candles.length < 30){
+      analysis.tf[tf.id] = { available:false, candles:candles.length };
+      return;
+    }
+    const closes = candles.map(c=>c.c);
+    const e20 = ema(closes, 20);
+    const e50 = ema(closes, 50);
+    const e200 = closes.length >= 200 ? ema(closes, 200) : null;
+    const r = rsi(closes, 14);
+    const a = atr(candles, 14);
+    const mac = macd(closes);
+    const ad = adx(candles, 14);
+    const struct = detectBOS(candles);
+    const sweep = liquiditySweep(candles);
+    const fvgs = findFVGs(candles);
+    const obs = orderBlocks(candles);
+    const sr = supportResistance(candles);
+
+    let bias = "neutral";
+    let score = 0;
+    if(e20 && e50){ if(e20 > e50) { bias = "bullish"; score += 1; } else { bias = "bearish"; score += 1; } }
+    if(e200){ if(closes[closes.length-1] > e200 && bias === "bullish") score += 1;
+              if(closes[closes.length-1] < e200 && bias === "bearish") score += 1; }
+    if(struct.bias === bias && bias !== "neutral") score += 1;
+    if(r !== null){ if(bias === "bullish" && r > 50 && r < 75) score += 1;
+                    if(bias === "bearish" && r < 50 && r > 25) score += 1; }
+    if(mac){ if(bias === "bullish" && mac.hist > 0) score += 1;
+             if(bias === "bearish" && mac.hist < 0) score += 1; }
+    if(ad && ad.adx > 20) score += 1;
+
+    if(bias === "bullish") bullishVotes += score;
+    else if(bias === "bearish") bearishVotes += score;
+
+    analysis.tf[tf.id] = { available:true, bias, score, rsi:r, atr:a, adx:ad?.adx, ema20:e20, ema50:e50, ema200:e200, macd:mac, struct, sweep, fvgs, obs, sr };
+  });
+
+  const dir = bullishVotes > bearishVotes ? "bullish" : bearishVotes > bullishVotes ? "bearish" : "neutral";
+  analysis.evidence = { bullishVotes, bearishVotes, dir, mtfConfirm: 0 };
+  const withData = Object.values(analysis.tf).filter(t => t.available);
+  if(withData.length){
+    analysis.evidence.mtfConfirm = withData.filter(t => t.bias === dir).length;
+  }
+
+  // Aggregate liquidity, structure, momentum
+  const primary = analysis.tf["M15"]?.available ? analysis.tf["M15"] : (analysis.tf["H1"]?.available ? analysis.tf["H1"] : null);
+  analysis.evidence.structure = primary?.struct?.bias || "neutral";
+  analysis.evidence.bos = !!primary?.struct?.bos;
+  analysis.evidence.choch = !!primary?.struct?.choch;
+  analysis.evidence.sweep = primary?.sweep?.sweep || "none";
+  analysis.evidence.momentum = primary?.macd?.hist > 0 ? "strong-up" : primary?.macd?.hist < 0 ? "strong-down" : "flat";
+  analysis.evidence.volatility = primary?.atr && m.price ? (primary.atr / m.price * 100) : null;
+  analysis.evidence.rsi = primary?.rsi ?? null;
+  analysis.evidence.adx = primary?.adx ?? null;
+  analysis.evidence.fvgs = primary?.fvgs || [];
+  analysis.evidence.obs = primary?.obs || [];
+  analysis.evidence.sr = primary?.sr || { supports:[], resistances:[] };
+
+  // Directional score 0-100
+  const votes = analysis.evidence[dir === "bearish" ? "bearishVotes" : "bullishVotes"];
+  const totalVotes = analysis.evidence.bullishVotes + analysis.evidence.bearishVotes;
+  const voteScore = totalVotes > 0 ? (votes / totalVotes) * 100 : 50;
+  const mtfBonus = (analysis.evidence.mtfConfirm / 3) * 30;
+  const structBonus = analysis.evidence.bos ? 10 : analysis.evidence.choch ? 5 : 0;
+  const sweepBonus = analysis.evidence.sweep !== "none" ? 5 : 0;
+  analysis.score = Math.round(clamp(voteScore * 0.55 + mtfBonus + structBonus + sweepBonus, 0, 100));
+
+  return analysis;
+}
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 10 — NEWS & CALENDAR
+   ------------------------------------------------------------------------------------------------ */
+const News = {
+  async fetchCalendar(){
+    if(now() - STATE.news.lastCal < CONFIG.CACHE_TTL.calendar && STATE.news.events.length) return STATE.news.events;
+    let events = [];
+    try{
+      if(API.hasProxy()){
+        const r = await API.proxyGet("/calendar", { path:"/today" });
+        events = Array.isArray(r) ? r : (r.events || []);
+      } else if(CONFIG.ALLOW_DIRECT_API_CALLS){
+        const r = await fetch(CONFIG.FINANCECALENDAR_BASE + "/today");
+        if(r.ok) events = await r.json();
+      } else {
+        setService("news","warn","News: proxy required");
+      }
+    }catch(e){
+      logEvent("warn","calendar", e.message);
+    }
+    STATE.news.events = Array.isArray(events) ? events.slice(0, 40) : [];
+    STATE.news.lastCal = now();
+    this.evaluateRisk();
+    return STATE.news.events;
+  },
+
+  async fetchHeadlines(){
+    if(now() - STATE.news.lastNews < CONFIG.CACHE_TTL.news && STATE.news.headlines.length) return STATE.news.headlines;
+    let data = [];
+    try{
+      if(API.hasProxy()){
+        const r = await API.proxyGet("/news", { symbols: "EUR,USD,GBP,JPY,XAU", limit: 20 });
+        data = r.data || [];
+      } else if(CONFIG.ALLOW_DIRECT_API_CALLS && CONFIG.MARKETAUX_API_KEY && !CONFIG.MARKETAUX_API_KEY.startsWith("YOUR_")){
+        const url = CONFIG.MARKETAUX_ENDPOINT + "?symbols=EUR,USD,GBP,JPY,XAU&filter_entities=true&language=en&limit=20&api_token=" + encodeURIComponent(CONFIG.MARKETAUX_API_KEY);
+        const r = await fetch(url);
+        if(r.ok){ const j = await r.json(); data = j.data || []; }
+      } else {
+        setService("news","warn","News: proxy required");
+      }
+    }catch(e){
+      logEvent("warn","marketaux", e.message);
+    }
+    STATE.news.headlines = Array.isArray(data) ? data.slice(0, 25) : [];
+    STATE.news.lastNews = now();
+    this.evaluateRisk();
+    return STATE.news.headlines;
+  },
+
+  evaluateRisk(){
+    const events = STATE.news.events || [];
+    const important = events.filter(e => {
+      const impact = String(e.impact || e.importance || "").toLowerCase();
+      const title = String(e.title || e.event || e.name || "").toUpperCase();
+      return impact.includes("high") || /FOMC|CPI|NFP|GDP|INTEREST RATE|RATE DECISION/.test(title);
+    });
+    const near = important.filter(e => {
+      const t = Date.parse(e.date || e.time || e.datetime || "");
+      if(!t) return true;
+      return Math.abs(t - now()) < 60 * 60 * 1000; // within 1 hour
+    });
+    if(near.length >= 2) STATE.news.risk = "EXTREME";
+    else if(near.length === 1 || important.length >= 3) STATE.news.risk = "HIGH";
+    else if(important.length >= 1) STATE.news.risk = "MEDIUM";
+    else STATE.news.risk = "LOW";
+    const nav = document.getElementById("navNewsRisk");
+    if(nav){ nav.textContent = STATE.news.risk; }
+    setService("news", STATE.news.risk === "EXTREME" || STATE.news.risk === "HIGH" ? "warn" : "on", "News: " + STATE.news.risk);
+    return STATE.news.risk;
+  }
+};
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 11 — AI BRAIN (Gemini + heuristic fallback)
+   ------------------------------------------------------------------------------------------------ */
+const Brain = {
+  async decide(pairId){
+    const analysis = analyzePair(pairId);
+    if(!analysis) return null;
+
+    // Historical experience boost
+    const pairExp = Object.values(STATE.experiences).filter(e => e.pairId === pairId);
+    const pairWins = pairExp.filter(e => e.outcome === "WIN").length;
+    const pairLoss = pairExp.filter(e => e.outcome === "LOSS").length;
+    const historicalEdge = pairExp.length >= 3 ? (pairWins / (pairWins + pairLoss || 1)) : null;
+
+    // Try Gemini for nuanced decision
+    let aiOut = null;
+    if(CONFIG.PROXY_BASE_URL || (CONFIG.ALLOW_DIRECT_API_CALLS && CONFIG.GEMINI_API_KEY && !CONFIG.GEMINI_API_KEY.startsWith("YOUR_"))){
+      try{
+        const prompt = this.buildPrompt(analysis, historicalEdge);
+        const raw = await callGemini(prompt);
+        const text = raw.text || raw.response || "";
+        aiOut = parseGeminiJson(text);
+      }catch(e){ logEvent("warn","gemini", "fallback to heuristic: " + e.message); }
+    }
+
+    // Heuristic fallback / confirmation
+    const heuristic = this.heuristicDecision(analysis, historicalEdge);
+
+    const decision = aiOut && typeof aiOut.direction === "string"
+      ? mergeDecision(aiOut, heuristic)
+      : heuristic;
+
+    decision.pairId = pairId;
+    decision.analysis = analysis;
+    decision.createdAt = now();
+    decision.tf = decision.tf || "M15";
+    decision.explanation = decision.explanation || buildExplanation(analysis, decision);
+    return decision;
+  },
+
+  buildPrompt(analysis, historicalEdge){
+    const e = analysis.evidence;
+    return `You are a professional Forex analyst AI. Produce a JSON decision only — no prose.
+
+INSTRUMENT: ${analysis.label}
+CURRENT PRICE: ${analysis.price}
+
+EVIDENCE (per timeframe):
+${JSON.stringify(analysis.tf, (k,v) => (k === "ema20"||k==="ema50"||k==="ema200") ? (v?Number(v.toFixed(6)):null) : v, 1).slice(0, 4200)}
+
+AGGREGATE EVIDENCE:
+- Directional bias: ${e.dir}
+- Bullish votes: ${e.bullishVotes}, Bearish votes: ${e.bearishVotes}
+- MTF confirmations: ${e.mtfConfirm}/3
+- Structure: ${e.structure}, BOS: ${e.bos}, CHOCH: ${e.choch}
+- Liquidity sweep: ${e.sweep}
+- Momentum: ${e.momentum}
+- RSI: ${e.rsi !== null ? e.rsi.toFixed(1) : "n/a"}
+- ADX: ${e.adx !== null ? e.adx.toFixed(1) : "n/a"}
+
+HISTORICAL EDGE (this instrument): ${historicalEdge !== null ? (historicalEdge*100).toFixed(1) + "% win rate over ${historicalEdge ? Math.round(historicalEdge) : 0} experiences" : "insufficient data"}
+
+RULES:
+1. Generate BUY, SELL or NO TRADE. If evidence is weak, conflicting or dangerous → NO TRADE.
+2. Confidence is a strength score 0-100, NOT a probability of success.
+3. Levels must be realistic ATR-based for the instrument's digit precision.
+4. Do NOT claim guaranteed profit or 100% accuracy.
+
+Return JSON with this exact schema:
+{
+  "direction": "BUY" | "SELL" | "NO TRADE",
+  "confidence": <int 0-100>,
+  "timeframe": "M15" | "H1" | "H4",
+  "entry": <number>,
+  "stopLoss": <number>,
+  "tp1": <number>,
+  "tp2": <number>,
+  "tp3": <number>,
+  "marketCondition": "<short>",
+  "explanation": "<2-3 sentences of transparent evidence summary>",
+  "confirmations": ["<short>", "<short>", "<short>"],
+  "riskFactors": ["<short>", "<short>"]
+}`;
+  },
+
+  heuristicDecision(analysis, historicalEdge){
+    const e = analysis.evidence;
+    const dir = e.dir;
+    const score = analysis.score;
+
+    if(dir === "neutral" || score < STATE.settings.minConfidence || e.mtfConfirm < 2){
+      return {
+        direction: "NO TRADE",
+        confidence: score,
+        timeframe: "M15",
+        marketCondition: "Mixed / unclear structure",
+        explanation: `Evidence is ${dir === "neutral" ? "neutral" : "conflicting"} with ${e.mtfConfirm}/3 timeframe confirmations and an aggregate strength of ${score}/100. Waiting for a clearer setup.`,
+        confirmations: [`MTF: ${e.mtfConfirm}/3`, `Structure: ${e.structure}`],
+        riskFactors: e.sweep !== "none" ? ["Liquidity sweep — possible whipsaw"] : ["No dominant trend"]
+      };
+    }
+
+    if(STATE.news.risk === "EXTREME"){
+      return {
+        direction: "NO TRADE",
+        confidence: score,
+        timeframe: "M15",
+        marketCondition: "Extreme news volatility",
+        explanation: "High-impact economic events are near. Volatility is elevated — risk of slippage and false breakouts. Reassessing after the event.",
+        confirmations: [`News risk: ${STATE.news.risk}`],
+        riskFactors: ["Extreme volatility", "Unpredictable price reaction"]
+      };
+    }
+
+    // ATR-based levels
+    const primaryTf = analysis.tf[analysis.tf["M15"]?.available ? "M15" : "H1"];
+    const atrV = primaryTf?.atr || analysis.price * 0.001;
+    const bias = dir === "bullish" ? 1 : -1;
+
+    const entry = analysis.price;
+    const sl = entry - bias * atrV * 1.5;
+    const tp1 = entry + bias * atrV * 1.5;
+    const tp2 = entry + bias * atrV * 2.5;
+    const tp3 = entry + bias * atrV * 4.0;
+    const rr = Math.abs((tp2 - entry) / (entry - sl));
+
+    // Adjust confidence with historical edge
+    let conf = score;
+    if(historicalEdge !== null){
+      if(historicalEdge > 0.6) conf = Math.min(95, conf + 5);
+      else if(historicalEdge < 0.4) conf = Math.max(40, conf - 8);
+    }
+
+    const confirmations = [];
+    if(e.bos) confirmations.push("BOS confirmed");
+    if(e.choch) confirmations.push("CHOCH detected");
+    if(e.sweep !== "none") confirmations.push(`Liquidity sweep (${e.sweep})`);
+    if(e.mtfConfirm >= 2) confirmations.push(`MTF confirmation ${e.mtfConfirm}/3`);
+    if(e.momentum.startsWith("strong")) confirmations.push("Momentum aligned");
+    if(e.rsi !== null) confirmations.push(`RSI ${e.rsi.toFixed(0)}`);
+
+    const riskFactors = [];
+    if(STATE.news.risk === "HIGH") riskFactors.push("High-impact news nearby");
+    if(e.rsi !== null && e.rsi > 72 && bias === 1) riskFactors.push("Overbought");
+    if(e.rsi !== null && e.rsi < 28 && bias === -1) riskFactors.push("Oversold");
+    if(e.mtfConfirm < 3) riskFactors.push("Not all timeframes aligned");
+    if(!riskFactors.length) riskFactors.push("Standard market risk");
+
+    return {
+      direction: dir === "bullish" ? "BUY" : "SELL",
+      confidence: Math.round(clamp(conf, 0, 96)),
+      timeframe: "M15",
+      entry: Number(entry.toFixed(PAIR_MAP[analysis.pairId].digits)),
+      stopLoss: Number(sl.toFixed(PAIR_MAP[analysis.pairId].digits)),
+      tp1: Number(tp1.toFixed(PAIR_MAP[analysis.pairId].digits)),
+      tp2: Number(tp2.toFixed(PAIR_MAP[analysis.pairId].digits)),
+      tp3: Number(tp3.toFixed(PAIR_MAP[analysis.pairId].digits)),
+      rr: Number(rr.toFixed(2)),
+      marketCondition: `${dir === "bullish" ? "Bullish" : "Bearish"} · ${e.mtfConfirm}/3 MTF aligned`,
+      explanation: buildExplanation(analysis, { direction: dir === "bullish" ? "BUY" : "SELL" }),
+      confirmations,
+      riskFactors
+    };
+  }
+};
+
+function mergeDecision(aiOut, heuristic){
+  // Only trust AI if direction is valid and confidence is consistent
+  const valid = ["BUY","SELL","NO TRADE"].includes((aiOut.direction||"").toUpperCase());
+  if(!valid || typeof aiOut.confidence !== "number") return heuristic;
+  const merged = {
+    direction: aiOut.direction.toUpperCase(),
+    confidence: clamp(Math.round(aiOut.confidence), 0, 99),
+    timeframe: aiOut.timeframe || heuristic.timeframe,
+    entry: aiOut.entry || heuristic.entry,
+    stopLoss: aiOut.stopLoss || heuristic.stopLoss,
+    tp1: aiOut.tp1 || heuristic.tp1,
+    tp2: aiOut.tp2 || heuristic.tp2,
+    tp3: aiOut.tp3 || heuristic.tp3,
+    rr: aiOut.rr || heuristic.rr,
+    marketCondition: aiOut.marketCondition || heuristic.marketCondition,
+    explanation: aiOut.explanation || heuristic.explanation,
+    confirmations: Array.isArray(aiOut.confirmations) ? aiOut.confirmations.slice(0,6) : heuristic.confirmations,
+    riskFactors: Array.isArray(aiOut.riskFactors) ? aiOut.riskFactors.slice(0,5) : heuristic.riskFactors,
+    source: "gemini"
+  };
+  return merged;
+}
+
+function parseGeminiJson(text){
+  if(!text) return null;
+  // Try strict JSON first
+  try{ return JSON.parse(text); }catch(e){}
+  // Try to extract JSON object
+  const m = text.match(/\{[\s\S]*\}/);
+  if(m){ try{ return JSON.parse(m[0]); }catch(e){} }
+  return null;
+}
+
+function buildExplanation(analysis, decision){
+  const e = analysis.evidence;
+  const dirTxt = decision.direction === "BUY" ? "bullish" : decision.direction === "SELL" ? "bearish" : "neutral";
+  const parts = [];
+  parts.push(`Trend is ${dirTxt} across ${e.mtfConfirm}/3 timeframes`);
+  if(e.bos) parts.push("a break of structure is confirmed");
+  if(e.sweep !== "none") parts.push(`a ${e.sweep} liquidity sweep has occurred`);
+  if(e.momentum.startsWith("strong")) parts.push("momentum is aligned");
+  return parts.join(", ") + ".";
+}
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 12 — SIGNAL ENGINE
+   ------------------------------------------------------------------------------------------------ */
+const SignalEngine = {
+  async runScan(){
+    if(STATE.brain.running) return;
+    STATE.brain.running = true;
+    STATE.brain.lastRun = now();
+    renderBrainStatus();
+
+    const openCount = Object.values(STATE.signals).filter(s => ["PENDING","ACTIVE","WEAKENING"].includes(s.status)).length;
+    if(openCount >= STATE.settings.maxSignals){
+      logEvent("info","engine","Max concurrent signals reached, skipping scan");
+      STATE.brain.running = false;
+      return;
+    }
+
+    const pairs = shuffle(PAIRS.map(p => p.id));
+    let published = 0;
+
+    for(const pairId of pairs){
+      if(published >= 3) break;
+      if(!STATE.market[pairId]?.price) continue;
+      // Skip if already has an open signal for this pair
+      const hasOpen = Object.values(STATE.signals).some(s => s.pairId === pairId && ["PENDING","ACTIVE","WEAKENING"].includes(s.status));
+      if(hasOpen) continue;
+
+      try{
+        const decision = await Brain.decide(pairId);
+        if(!decision) continue;
+
+        // Always log every decision (auditable)
+        await this.recordDecision(decision);
+
+        if(decision.direction === "NO TRADE"){
+          continue;
+        }
+
+        if(decision.confidence < STATE.settings.minConfidence) continue;
+
+        await this.publishSignal(decision);
+        published++;
+      }catch(e){
+        logEvent("error","engine", "Scan failed for " + pairId + ": " + e.message);
+      }
+    }
+    STATE.brain.running = false;
+    renderBrainStatus();
+    renderDashboard();
+    renderSignals();
+    $("#sigLastScan").textContent = "Last scan: " + fmtTime(now());
+  },
+
+  async recordDecision(decision){
+    const rec = {
+      id: uid("dec"),
+      pairId: decision.pairId,
+      direction: decision.direction,
+      confidence: decision.confidence,
+      timeframe: decision.timeframe,
+      explanation: decision.explanation,
+      evidence: decision.analysis?.evidence || null,
+      createdAt: decision.createdAt,
+      source: decision.source || "heuristic"
+    };
+    STATE.analysisLog[rec.id] = rec;
+    if(FB.ready) await DB.set(`analysisLog/${rec.id}`, rec);
+  },
+
+  async publishSignal(decision){
+    const pair = PAIR_MAP[decision.pairId];
+    const id = uid("sig");
+    const signal = {
+      id,
+      pairId: decision.pairId,
+      pairLabel: pair.label,
+      direction: decision.direction,
+      timeframe: decision.timeframe,
+      entry: decision.entry,
+      stopLoss: decision.stopLoss,
+      tp1: decision.tp1,
+      tp2: decision.tp2,
+      tp3: decision.tp3,
+      rr: decision.rr,
+      confidence: decision.confidence,
+      marketCondition: decision.marketCondition,
+      explanation: decision.explanation,
+      confirmations: decision.confirmations || [],
+      riskFactors: decision.riskFactors || [],
+      status: "PENDING",  // PENDING until entry is triggered
+      source: decision.source || "heuristic",
+      createdAt: decision.createdAt,
+      entryTriggeredAt: null,
+      updatedAt: decision.createdAt,
+      closedAt: null,
+      duration: null,
+      finalPrice: null,
+      result: null,
+      pnlR: null,
+      user: STATE.user?.uid || "guest",
+      isPaper: !!STATE.settings.paperMode
+    };
+    STATE.signals[id] = signal;
+    if(FB.ready) await DB.set(`signals/${id}`, signal);
+    toast("Signal published", `${pair.label} ${signal.direction} · conf ${signal.confidence}`, "ok");
+    logEvent("info","engine", `Published ${signal.direction} ${pair.label}`);
+    playAlertSound();
+  }
+};
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i+1)); [a[i],a[j]] = [a[j],a[i]]; }
+  return a;
+}
+
+function playAlertSound(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = 880; g.gain.value = 0.05;
+    o.start();
+    setTimeout(() => { o.stop(); ctx.close(); }, 160);
+  }catch(e){}
+}
+
+/* Monitor all open signals against live prices */
+async function monitorSignalsForPair(pairId, price){
+  const pair = PAIR_MAP[pairId]; if(!pair) return;
+  const open = Object.values(STATE.signals).filter(s => s.pairId === pairId && ["PENDING","ACTIVE","WEAKENING"].includes(s.status));
+  for(const s of open){
+    await updateSignalLifecycle(s, price);
+  }
+}
+
+async function updateSignalLifecycle(s, price){
+  const prevStatus = s.status;
+  let changed = false;
+
+  // Expiry
+  if(s.status === "PENDING" && now() - s.createdAt > STATE.settings.expiryHours * 3600 * 1000){
+    s.status = "INVALIDATED";
+    s.result = "INVALIDATED";
+    s.closedAt = now();
+    s.duration = s.closedAt - s.createdAt;
+    changed = true;
+  }
+
+  // Entry trigger
+  if(s.status === "PENDING"){
+    const hit = s.direction === "BUY" ? price >= s.entry : price <= s.entry;
+    if(hit){
+      s.status = "ACTIVE";
+      s.entryTriggeredAt = now();
+      changed = true;
+    }
+  }
+
+  // Stop loss
+  if(s.status === "ACTIVE" || s.status === "WEAKENING"){
+    const slHit = s.direction === "BUY" ? price <= s.stopLoss : price >= s.stopLoss;
+    if(slHit){
+      s.status = "STOP LOSS";
+      s.result = "STOP LOSS";
+      s.finalPrice = price;
+      s.pnlR = -1;
+      s.closedAt = now();
+      s.duration = s.closedAt - (s.entryTriggeredAt || s.createdAt);
+      changed = true;
+    }
+  }
+
+  // Targets
+  if(["ACTIVE","WEAKENING"].includes(s.status)){
+    const t1 = s.direction === "BUY" ? price >= s.tp1 : price <= s.tp1;
+    const t2 = s.direction === "BUY" ? price >= s.tp2 : price <= s.tp2;
+    const t3 = s.direction === "BUY" ? price >= s.tp3 : price <= s.tp3;
+    if(t3 && s.status !== "FULL TP"){
+      s.status = "FULL TP";
+      s.result = "FULL TP";
+      s.finalPrice = price; s.pnlR = s.rr || 3;
+      s.closedAt = now(); s.duration = s.closedAt - (s.entryTriggeredAt || s.createdAt);
+      changed = true;
+    } else if(t2 && !["TP2 HIT","FULL TP"].includes(s.status)){
+      s.status = "TP2 HIT";
+      s.result = "TP2 HIT";
+      s.pnlR = Math.abs((s.tp2 - s.entry) / (s.entry - s.stopLoss));
+      changed = true;
+    } else if(t1 && !["TP1 HIT","TP2 HIT","FULL TP"].includes(s.status)){
+      s.status = "TP1 HIT";
+      s.result = "TP1 HIT";
+      s.pnlR = Math.abs((s.tp1 - s.entry) / (s.entry - s.stopLoss));
+      changed = true;
+    }
+  }
+
+  // Weakening detection: momentum reverses against direction on primary timeframe
+  if(s.status === "ACTIVE"){
+    const primary = Candle.get(s.pairId, "M15");
+    if(primary.length >= 30){
+      const closes = primary.map(c=>c.c);
+      const mac = macd(closes);
+      const r = rsi(closes, 14);
+      const against = (s.direction === "BUY" && mac && mac.hist < 0 && r < 45) ||
+                      (s.direction === "SELL" && mac && mac.hist > 0 && r > 55);
+      if(against){ s.status = "WEAKENING"; changed = true; }
+    }
+  }
+
+  if(changed){
+    s.updatedAt = now();
+    await SignalEngine.persistSignal(s);
+    if(["STOP LOSS","FULL TP","TP1 HIT","TP2 HIT","INVALIDATED"].includes(s.status)){
+      // Move to history if fully closed
+      if(["STOP LOSS","FULL TP","INVALIDATED"].includes(s.status)){
+        await SignalEngine.archiveSignal(s);
+      }
+      toast(s.status, `${s.pairLabel} ${s.direction}`, s.status === "STOP LOSS" ? "err" : "ok");
+      renderDashboard(); renderSignals(); renderHistory(); renderLearning();
+    }
+    if(prevStatus !== s.status) logEvent("info","lifecycle", `${s.pairLabel} → ${s.status}`);
+  }
+}
+
+SignalEngine.persistSignal = async function(s){
+  if(FB.ready) await DB.set(`signals/${s.id}`, s);
+};
+
+SignalEngine.archiveSignal = async function(s){
+  // Move to signalHistory and remove from open signals
+  const archive = { ...s, archivedAt: now() };
+  STATE.history[s.id] = archive;
+  delete STATE.signals[s.id];
+  if(FB.ready){
+    await DB.set(`signalHistory/${s.id}`, archive);
+    await DB.set(`signals/${s.id}`, null);
+  }
+  // Store learning experience
+  await Learning.recordExperience(archive);
+};
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 13 — LEARNING MEMORY
+   ------------------------------------------------------------------------------------------------ */
+const Learning = {
+  async recordExperience(sig){
+    const win = ["TP1 HIT","TP2 HIT","FULL TP"].includes(sig.result);
+    const loss = sig.result === "STOP LOSS";
+    if(!win && !loss) return; // Only learn from resolved trades
+    const exp = {
+      id: uid("exp"),
+      signalId: sig.id,
+      pairId: sig.pairId,
+      pairLabel: sig.pairLabel,
+      direction: sig.direction,
+      timeframe: sig.timeframe,
+      confidence: sig.confidence,
+      entry: sig.entry,
+      stopLoss: sig.stopLoss,
+      tp1: sig.tp1, tp2: sig.tp2, tp3: sig.tp3,
+      result: sig.result,
+      pnlR: sig.pnlR,
+      duration: sig.duration,
+      marketCondition: sig.marketCondition,
+      confirmations: sig.confirmations,
+      riskFactors: sig.riskFactors,
+      explanation: sig.explanation,
+      outcome: win ? "WIN" : "LOSS",
+      isPaper: !!sig.isPaper,
+      createdAt: now()
+    };
+    STATE.experiences[exp.id] = exp;
+    if(FB.ready) await DB.set(`learningExperiences/${exp.id}`, exp);
+    logEvent("info","learning", `Experience stored: ${exp.pairLabel} ${exp.outcome}`);
+  },
+
+  getStats(experiences){
+    const arr = experiences || [];
+    const total = arr.length;
+    const wins = arr.filter(e => e.outcome === "WIN").length;
+    const losses = arr.filter(e => e.outcome === "LOSS").length;
+    const winRate = total > 0 ? (wins / total) * 100 : null;
+
+    // Best pairs
+    const byPair = {};
+    arr.forEach(e => {
+      const k = e.pairLabel;
+      byPair[k] = byPair[k] || { w:0, l:0 };
+      if(e.outcome === "WIN") byPair[k].w++; else byPair[k].l++;
+    });
+    const pairs = Object.entries(byPair).map(([k,v]) => ({ pair:k, total:v.w+v.l, wins:v.w, losses:v.l, rate:v.w/(v.w+v.l) })).sort((a,b) => b.rate - a.rate);
+
+    // Best timeframes
+    const byTf = {};
+    arr.forEach(e => {
+      const k = e.timeframe || "—";
+      byTf[k] = byTf[k] || { w:0, l:0 };
+      if(e.outcome === "WIN") byTf[k].w++; else byTf[k].l++;
+    });
+    const tfs = Object.entries(byTf).map(([k,v]) => ({ tf:k, total:v.w+v.l, rate:v.w/(v.w+v.l) })).sort((a,b) => b.rate - a.rate);
+
+    return { total, wins, losses, winRate, pairs, tfs };
+  }
+};
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 14 — PERFORMANCE (REAL ONLY)
+   ------------------------------------------------------------------------------------------------ */
+function calculatePerformance(){
+  const closed = Object.values(STATE.history).filter(h => !h.isPaper);
+  const total = closed.length;
+  const wins = closed.filter(h => ["TP1 HIT","TP2 HIT","FULL TP"].includes(h.result)).length;
+  const losses = closed.filter(h => h.result === "STOP LOSS").length;
+  const invalidated = closed.filter(h => h.result === "INVALIDATED").length;
+  const decided = wins + losses;
+  const winRate = decided >= CONFIG.MIN_CLOSED_FOR_STATS ? (wins / decided) * 100 : null;
+  const lossRate = decided >= CONFIG.MIN_CLOSED_FOR_STATS ? (losses / decided) * 100 : null;
+  const tp1Rate = decided >= CONFIG.MIN_CLOSED_FOR_STATS ? (closed.filter(h => ["TP1 HIT","TP2 HIT","FULL TP"].includes(h.result)).length / decided) * 100 : null;
+  const tp2Rate = decided >= CONFIG.MIN_CLOSED_FOR_STATS ? (closed.filter(h => ["TP2 HIT","FULL TP"].includes(h.result)).length / decided) * 100 : null;
+  const fullTpRate = decided >= CONFIG.MIN_CLOSED_FOR_STATS ? (closed.filter(h => h.result === "FULL TP").length / decided) * 100 : null;
+  const avgR = total > 0 ? closed.reduce((a,h) => a + (h.pnlR || 0), 0) / total : null;
+  const durations = closed.map(h => h.duration).filter(Boolean);
+  const avgDuration = durations.length ? durations.reduce((a,b) => a+b, 0) / durations.length : null;
+
+  // Streaks
+  const sorted = closed.slice().sort((a,b) => (a.closedAt||0) - (b.closedAt||0));
+  let maxWinStreak = 0, maxLossStreak = 0, curW = 0, curL = 0;
+  sorted.forEach(h => {
+    if(h.outcome === "WIN" || ["TP1 HIT","TP2 HIT","FULL TP"].includes(h.result)){
+      curW++; curL = 0; maxWinStreak = Math.max(maxWinStreak, curW);
+    } else if(h.result === "STOP LOSS"){
+      curL++; curW = 0; maxLossStreak = Math.max(maxLossStreak, curL);
+    }
+  });
+
+  STATE.perf = {
+    total, wins, losses, invalidated, decided,
+    winRate, lossRate,
+    tp1Rate, tp2Rate, fullTpRate,
+    avgR, avgDuration,
+    winStreak: maxWinStreak, lossStreak: maxLossStreak,
+    enough: total >= CONFIG.MIN_CLOSED_FOR_STATS
+  };
+  return STATE.perf;
+}
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 15 — BOOT
+   ------------------------------------------------------------------------------------------------ */
+function updateBootProgress(pct, msg){
+  const bar = document.getElementById("bootBar");
+  const txt = document.getElementById("bootMsg");
+  if(bar) bar.style.width = pct + "%";
+  if(txt) txt.textContent = msg;
+}
+
+async function bootApp(){
+  try{
+    updateBootProgress(15, "Reading configuration…");
+    await sleep(180);
+
+    // 1. Firebase
+    const fbOk = initFirebase();
+    updateBootProgress(35, fbOk ? "Firebase connected" : "Non-persistent mode (no DB)");
+    await sleep(200);
+
+    // 2. AI config check
+    const aiConfigured = API.hasProxy() || (CONFIG.ALLOW_DIRECT_API_CALLS && CONFIG.GEMINI_API_KEY && !CONFIG.GEMINI_API_KEY.startsWith("YOUR_"));
+    setService("ai", aiConfigured ? "on" : "warn", aiConfigured ? "AI: ready" : "AI: heuristic");
+
+    // 3. News config check
+    const newsConfigured = API.hasProxy() || (CONFIG.ALLOW_DIRECT_API_CALLS && CONFIG.MARKETAUX_API_KEY && !CONFIG.MARKETAUX_API_KEY.startsWith("YOUR_"));
+    setService("news", newsConfigured ? "on" : "warn", newsConfigured ? "News: ready" : "News: local");
+
+    // 4. Deriv connection
+    updateBootProgress(60, "Connecting to market data…");
+    Deriv.connect();
+    // Give the WebSocket a moment, then subscribe
+    await sleep(700);
+    Deriv.subscribeAll();
+
+    updateBootProgress(85, "Ready");
+    await sleep(220);
+
+    // 5. Hide boot
+    document.getElementById("bootScreen").classList.add("hidden");
+
+    // 6. Auth flow
+    if(fbOk && FB.auth){
+      FB.auth.onAuthStateChanged(async user => {
+        if(user){
+          STATE.user = { uid:user.uid, email:user.email, displayName: user.displayName || user.email };
+          await loadProfile(user.uid);
+          await loadSettings(user.uid);
+          await loadData();
+          await enterApp();
+        } else {
+          showAuth();
+        }
+      });
+    } else {
+      // Show config warning if Firebase not configured
+      document.getElementById("authConfigWarn").classList.remove("hidden");
+      showAuth();
+    }
+  }catch(e){
+    console.error(e);
+    updateBootProgress(100, "Boot error: " + e.message);
+    // Still show auth so user isn't stuck
+    setTimeout(() => {
+      document.getElementById("bootScreen").classList.add("hidden");
+      document.getElementById("authScreen").classList.remove("hidden");
+    }, 900);
+    logEvent("error","boot", e.message);
+  }
+}
+
+function showAuth(){
+  document.getElementById("authScreen").classList.remove("hidden");
+  document.getElementById("app").classList.add("hidden");
+}
+
+async function enterApp(){
+  document.getElementById("authScreen").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+
+  // Set user info
+  const initials = (STATE.user?.displayName || "GU").substring(0,2).toUpperCase();
+  $("#avatarInitials").textContent = initials;
+  $("#sideUserName").textContent = STATE.user?.displayName || "Guest";
+  $("#sideUserRole").textContent = STATE.isAdmin ? "ADMIN" : "TRADER";
+  $("#profAvatar").textContent = initials;
+  $("#profName").textContent = STATE.user?.displayName || "Guest";
+  $("#profEmail").textContent = STATE.user?.email || "—";
+  $("#profRole").textContent = STATE.isAdmin ? "ADMIN" : "TRADER";
+  $("#profRole2").textContent = STATE.isAdmin ? "ADMIN" : "TRADER";
+  $("#profUid").textContent = STATE.user?.uid || "—";
+  $("#profSince").textContent = STATE.profile?.createdAt ? fmtTime(STATE.profile.createdAt) : "—";
+  $("#profStorage").textContent = FB.ready ? "Firebase (persistent)" : "Local (non-persistent)";
+
+  // Populate settings
+  $("#setInterval").value = STATE.settings.analysisInterval;
+  $("#setMonitor").value = STATE.settings.monitorInterval;
+  $("#setMinConf").value = STATE.settings.minConfidence;
+  $("#setMaxSig").value = STATE.settings.maxSignals;
+  $("#setExpiry").value = STATE.settings.expiryHours;
+  $("#profNameInput").value = STATE.user?.displayName || "";
+
+  // Brain pair select
+  const sel = $("#brainPairSelect");
+  sel.innerHTML = PAIRS.map(p => `<option value="${p.id}">${p.label}</option>`).join("");
+  sel.addEventListener("change", () => renderBrainDetail(sel.value));
+
+  // Render everything
+  renderAll();
+  startEngine();
+  toast("Welcome", `Signed in as ${STATE.user?.displayName || "Guest"}`, "ok");
+}
+
+async function loadProfile(uid){
+  const p = await DB.get(`users/${uid}/profile`);
+  STATE.profile = p || {};
+  STATE.isAdmin = (p?.role === "admin");
+}
+async function loadSettings(uid){
+  const s = await DB.get(`users/${uid}/settings`);
+  if(s) STATE.settings = { ...STATE.settings, ...s };
+}
+async function loadData(){
+  STATE.persistence = FB.ready;
+  if(!FB.ready) return;
+  STATE.signals = await DB.get("signals") || {};
+  STATE.history = await DB.get("signalHistory") || {};
+  STATE.paper = await DB.get("paperTrades") || {};
+  STATE.experiences = await DB.get("learningExperiences") || {};
+  STATE.analysisLog = await DB.get("analysisLog") || {};
+
+  // Real-time sync
+  DB.on("signals", data => { STATE.signals = data; renderSignals(); renderDashboard(); updateNavCounts(); });
+  DB.on("signalHistory", data => { STATE.history = data; calculatePerformance(); renderHistory(); renderDashboard(); renderLearning(); });
+  DB.on("learningExperiences", data => { STATE.experiences = data; renderLearning(); });
+  DB.on("analysisLog", data => { STATE.analysisLog = data; renderBrainLog(); });
+}
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 16 — ENGINE START
+   ------------------------------------------------------------------------------------------------ */
+let engineTimer = null, monitorTimer = null;
+
+function startEngine(){
+  // Seed candle history from current ticks
+  setInterval(() => {
+    PAIRS.forEach(p => {
+      const price = Deriv.getPrice(p.id);
+      if(price){
+        TIMEFRAMES.forEach(tf => Candle.push(p.id, tf.id, price, now()));
+      }
+    });
+  }, 3000);
+
+  // Periodic analysis
+  scheduleAnalysis();
+  // Monitoring loop
+  monitorTimer = setInterval(() => {
+    Object.values(STATE.signals).forEach(s => {
+      const p = Deriv.getPrice(s.pairId);
+      if(p) updateSignalLifecycle(s, p);
+    });
+    renderSignals();
+    renderDashboard();
+  }, STATE.settings.monitorInterval * 1000);
+
+  // News periodic
+  News.fetchCalendar().then(() => renderNews());
+  News.fetchHeadlines().then(() => renderNews());
+  setInterval(() => { News.fetchCalendar().then(() => renderNews()); }, CONFIG.CACHE_TTL.calendar);
+  setInterval(() => { News.fetchHeadlines().then(() => renderNews()); }, CONFIG.CACHE_TTL.news);
+
+  // UI refresh
+  setInterval(() => { renderSignals(); renderDashboard(); }, 5000);
+}
+
+function scheduleAnalysis(){
+  clearTimeout(engineTimer);
+  engineTimer = setTimeout(async () => {
+    await SignalEngine.runScan();
+    scheduleAnalysis();
+  }, STATE.settings.analysisInterval * 60 * 1000);
+}
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 17 — RENDERING
+   ------------------------------------------------------------------------------------------------ */
+function renderAll(){
+  renderDashboard();
+  renderSignals();
+  renderHistory();
+  renderNews();
+  renderLearning();
+  renderBrainStatus();
+  renderBrainLog();
+  renderBrainDetail($("#brainPairSelect")?.value || PAIRS[0].id);
+  renderSettingsStatus();
+  renderAdmin();
+  updateNavCounts();
+}
+
+function updateNavCounts(){
+  const active = Object.values(STATE.signals).filter(s => ["ACTIVE","WEAKENING"].includes(s.status)).length;
+  const pending = Object.values(STATE.signals).filter(s => s.status === "PENDING").length;
+  const el = $("#navActiveCount");
+  if(el) el.textContent = active + pending;
+}
+
+function renderDashboard(){
+  const signals = Object.values(STATE.signals);
+  const active = signals.filter(s => s.status === "ACTIVE" || s.status === "WEAKENING").length;
+  const pending = signals.filter(s => s.status === "PENDING").length;
+  const buys = signals.filter(s => s.direction === "BUY" && ["PENDING","ACTIVE","WEAKENING"].includes(s.status)).length;
+  const sells = signals.filter(s => s.direction === "SELL" && ["PENDING","ACTIVE","WEAKENING"].includes(s.status)).length;
+  const today = dayStart(now());
+  const noTradeToday = Object.values(STATE.analysisLog).filter(l => l.direction === "NO TRADE" && l.createdAt >= today).length;
+
+  $("#dAIStatus").textContent = STATE.brain.running ? "SCANNING" : "STANDBY";
+  $("#dAISub").textContent = STATE.brain.lastRun ? "Last: " + timeAgo(STATE.brain.lastRun) + " ago" : "Awaiting first scan";
+
+  const livePairs = PAIRS.filter(p => STATE.market[p.id]?.price).length;
+  $("#dMarket").textContent = livePairs + "/" + PAIRS.length;
+  $("#dMarketSub").textContent = livePairs > 0 ? "Live ticks streaming" : "Waiting for data…";
+
+  $("#dActive").textContent = active + pending;
+  $("#dActiveSub").textContent = `BUY ${buys} · SELL ${sells}`;
+  $("#dNoTrade").textContent = noTradeToday;
+
+  const perf = STATE.perf || calculatePerformance();
+  if(perf && perf.enough && perf.winRate !== null){
+    $("#dWinRate").textContent = fmtPct(perf.winRate);
+    $("#dWinRateSub").textContent = `${perf.wins}W / ${perf.losses}L · ${perf.total} closed`;
+  } else {
+    $("#dWinRate").textContent = "—";
+    $("#dWinRateSub").textContent = "NOT ENOUGH DATA (" + (perf?.total || 0) + "/" + CONFIG.MIN_CLOSED_FOR_STATS + ")";
+  }
+
+  // Recent signals on dashboard
+  const list = signals.filter(s => ["PENDING","ACTIVE","WEAKENING"].includes(s.status)).slice(0,3);
+  $("#dashSignals").innerHTML = list.length ? list.map(s => signalRowHtml(s)).join("") :
+    `<div class="empty"><i class="fa-solid fa-bolt"></i><b>No active signals</b><span>Waiting for strong setups…</span></div>`;
+
+  // News risk
+  $("#dashNewsRisk").innerHTML = renderNewsRiskPanel(true);
+
+  // Learning
+  const l = Learning.getStats(Object.values(STATE.experiences));
+  $("#dashLearning").innerHTML = `
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-database"></i> Experiences</div><div class="v">${l.total}</div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-trophy"></i> Win Rate</div><div class="v">${l.total >= 5 ? fmtPct(l.winRate) : "NOT ENOUGH DATA"}</div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-star"></i> Best Pair</div><div class="v">${l.pairs[0]?.pair || "—"}</div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-clock"></i> Best TF</div><div class="v">${l.tfs[0]?.tf || "—"}</div></div>`;
+
+  // Recent results
+  const recent = Object.values(STATE.history).filter(h => !h.isPaper).sort((a,b) => (b.closedAt||0)-(a.closedAt||0)).slice(0,5);
+  $("#dashRecent").innerHTML = recent.length ? recent.map(h => `
+    <div class="evidence-row">
+      <div class="k"><i class="fa-solid fa-${h.outcome === "WIN" ? "circle-check" : "circle-xmark"}" style="color:${h.outcome === "WIN" ? "var(--green)" : "var(--red)"}"></i> ${esc(h.pairLabel)} ${esc(h.direction)}</div>
+      <div class="v"><span class="badge ${h.result === "STOP LOSS" ? "sl" : "tp"}">${esc(h.result)}</span> <span class="dim" style="font-size:10.5px;margin-left:6px">${timeAgo(h.closedAt)}</span></div>
+    </div>`).join("") :
+    `<div class="empty"><i class="fa-solid fa-clock-rotate-left"></i><b>No completed signals yet</b><span>Results appear here once signals resolve.</span></div>`;
+
+  // Performance panel
+  const p = perf;
+  $("#dashPerf").innerHTML = `
+    <div class="bar-row"><div class="nm">Win Rate</div><div class="bar-track"><i style="width:${p?.winRate||0}%;background:linear-gradient(90deg,var(--green),var(--cyan))"></i></div><div class="vv">${p?.enough ? fmtPct(p.winRate) : "—"}</div></div>
+    <div class="bar-row"><div class="nm">TP1 Rate</div><div class="bar-track"><i style="width:${p?.tp1Rate||0}%"></i></div><div class="vv">${p?.enough ? fmtPct(p.tp1Rate) : "—"}</div></div>
+    <div class="bar-row"><div class="nm">TP2 Rate</div><div class="bar-track"><i style="width:${p?.tp2Rate||0}%"></i></div><div class="vv">${p?.enough ? fmtPct(p.tp2Rate) : "—"}</div></div>
+    <div class="bar-row"><div class="nm">Full TP Rate</div><div class="bar-track"><i style="width:${p?.fullTpRate||0}%"></i></div><div class="vv">${p?.enough ? fmtPct(p.fullTpRate) : "—"}</div></div>
+    <div class="bar-row"><div class="nm">Avg R:R</div><div class="bar-track"><i style="width:${clamp((p?.avgR||0)*25,0,100)}%"></i></div><div class="vv">${p?.avgR !== null && p?.avgR !== undefined ? p.avgR.toFixed(2) : "—"}</div></div>
+    <div style="margin-top:14px;font-size:11px;color:var(--mute);line-height:1.6">
+      Statistics are computed only from real completed signals. No hard-coded values.
+    </div>`;
+}
+
+function signalRowHtml(s){
+  const conf = s.confidence;
+  const confColor = conf >= 80 ? "var(--green)" : conf >= 65 ? "var(--cyan)" : "var(--gold)";
+  const statusClass = s.status === "PENDING" ? "pending" : s.status === "WEAKENING" ? "warn" : "active";
+  return `<div class="sig-card ${s.direction === "BUY" ? "buy" : "sell"}" style="margin-bottom:10px">
+    <div class="sig-top">
+      <div class="sig-pair">${esc(s.pairLabel)}<small>${esc(s.timeframe)} · ${timeAgo(s.createdAt)} ago</small></div>
+      <div style="text-align:right">
+        <span class="badge ${s.direction === "BUY" ? "buy" : "sell"}">${esc(s.direction)}</span>
+        <span class="badge ${statusClass}" style="margin-left:6px">${esc(s.status)}</span>
+      </div>
+    </div>
+    <div class="sig-levels">
+      <div class="lvl en"><div class="k">Entry</div><div class="v">${fmtPrice(s.entry, s.pairId)}</div></div>
+      <div class="lvl sl"><div class="k">SL</div><div class="v">${fmtPrice(s.stopLoss, s.pairId)}</div></div>
+      <div class="lvl tp"><div class="k">TP1</div><div class="v">${fmtPrice(s.tp1, s.pairId)}</div></div>
+      <div class="lvl tp"><div class="k">TP3</div><div class="v">${fmtPrice(s.tp3, s.pairId)}</div></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--dim)">
+      <span>Confidence <b style="color:${confColor}">${conf}/100</b></span>
+      <span>R:R <b>${fmtNum(s.rr,2)}</b></span>
+    </div>
+  </div>`;
+}
+
+function renderSignals(){
+  const grid = $("#signalsGrid"); if(!grid) return;
+  const filter = STATE.ui.sigFilter;
+  let list = Object.values(STATE.signals);
+  if(filter === "active") list = list.filter(s => s.status === "ACTIVE");
+  else if(filter === "pending") list = list.filter(s => s.status === "PENDING");
+  else if(filter === "weakening") list = list.filter(s => s.status === "WEAKENING");
+  else list = list.filter(s => ["PENDING","ACTIVE","WEAKENING"].includes(s.status));
+
+  list.sort((a,b) => b.createdAt - a.createdAt);
+
+  if(!list.length){
+    grid.innerHTML = `<div class="card card-pad empty" style="grid-column:1/-1"><i class="fa-solid fa-bolt"></i><b>No signals match this filter</b><span>Waiting for the engine to identify strong setups.</span></div>`;
+    return;
+  }
+  grid.innerHTML = list.map(s => {
+    const live = Deriv.getPrice(s.pairId) || s.entry;
+    let progress = 0;
+    if(s.direction === "BUY"){
+      if(live >= s.tp3) progress = 100;
+      else if(live >= s.tp2) progress = 80;
+      else if(live >= s.tp1) progress = 60;
+      else if(live >= s.entry) progress = 30;
+    } else {
+      if(live <= s.tp3) progress = 100;
+      else if(live <= s.tp2) progress = 80;
+      else if(live <= s.tp1) progress = 60;
+      else if(live <= s.entry) progress = 30;
+    }
+    const confColor = s.confidence >= 80 ? "var(--green)" : s.confidence >= 65 ? "var(--cyan)" : "var(--gold)";
+    return `<div class="sig-card ${s.direction === "BUY" ? "buy" : "sell"}">
+      <div class="sig-top">
+        <div class="sig-pair">${esc(s.pairLabel)}<small>${esc(s.timeframe)} · Age ${timeAgo(s.createdAt)}</small></div>
+        <div style="text-align:right">
+          <span class="badge ${s.direction === "BUY" ? "buy" : "sell"}">${esc(s.direction)}</span>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span class="badge ${s.status === "PENDING" ? "pending" : s.status === "WEAKENING" ? "warn" : "active"}">${esc(s.status)}</span>
+        <span style="font-family:var(--mono);font-size:13px;font-weight:700;color:${confColor}">${s.confidence}/100</span>
+      </div>
+      <div class="sig-levels" style="grid-template-columns:repeat(4,1fr)">
+        <div class="lvl en"><div class="k">Entry</div><div class="v">${fmtPrice(s.entry, s.pairId)}</div></div>
+        <div class="lvl sl"><div class="k">SL</div><div class="v">${fmtPrice(s.stopLoss, s.pairId)}</div></div>
+        <div class="lvl tp"><div class="k">TP1</div><div class="v">${fmtPrice(s.tp1, s.pairId)}</div></div>
+        <div class="lvl tp"><div class="k">TP3</div><div class="v">${fmtPrice(s.tp3, s.pairId)}</div></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:var(--mute);margin-top:8px">
+        <span>Live <b class="mono" data-price-pair="${s.pairId}" style="color:var(--cyan)">${fmtPrice(live, s.pairId)}</b></span>
+        <span>R:R <b class="mono">${fmtNum(s.rr,2)}</b></span>
+      </div>
+      <div class="progress" style="margin-top:12px"><i style="width:${progress}%"></i></div>
+      <div class="progress-lbl"><span>Entry</span><span>TP1</span><span>TP2</span><span>TP3</span></div>
+      <div style="font-size:11.5px;color:var(--dim);margin-top:11px;line-height:1.5">${esc(s.explanation || "")}</div>
+      <div style="margin-top:10px;display:flex;gap:5px;flex-wrap:wrap">
+        ${(s.confirmations||[]).slice(0,4).map(c => `<span class="tag">${esc(c)}</span>`).join("")}
+        ${(s.riskFactors||[]).slice(0,2).map(c => `<span class="tag risk">${esc(c)}</span>`).join("")}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderHistory(){
+  calculatePerformance();
+  const p = STATE.perf;
+  $("#histStats").innerHTML = `
+    <div class="stat"><div class="lbl">Total</div><div class="val">${p.total}</div></div>
+    <div class="stat g"><div class="lbl">Wins</div><div class="val">${p.wins}</div></div>
+    <div class="stat r"><div class="lbl">Losses</div><div class="val">${p.losses}</div></div>
+    <div class="stat y"><div class="lbl">Win Rate</div><div class="val">${p.enough && p.winRate !== null ? fmtPct(p.winRate) : "—"}</div></div>
+    <div class="stat b"><div class="lbl">Avg R:R</div><div class="val">${p.avgR !== null ? fmtNum(p.avgR,2) : "—"}</div></div>`;
+
+  const src = STATE.ui.histSrc;
+  let arr = Object.values(src === "paper" ? STATE.paper : STATE.history).filter(h => src === "paper" ? !!h.isPaper : !h.isPaper);
+  const f = STATE.ui.histFilter;
+  const t = now();
+  if(f === "today") arr = arr.filter(h => (h.closedAt||h.createdAt) >= dayStart(t));
+  else if(f === "7d") arr = arr.filter(h => (h.closedAt||h.createdAt) >= t - 7*86400000);
+  else if(f === "30d") arr = arr.filter(h => (h.closedAt||h.createdAt) >= t - 30*86400000);
+  arr.sort((a,b) => (b.closedAt||b.createdAt||0) - (a.closedAt||a.createdAt||0));
+  $("#histCount").textContent = arr.length + " records";
+
+  if(!arr.length){
+    $("#histTable").innerHTML = `<div class="empty"><i class="fa-solid fa-clock-rotate-left"></i><b>No history yet</b><span>Completed signals will appear here.</span></div>`;
+    return;
+  }
+  $("#histTable").innerHTML = `<table class="tbl">
+    <thead><tr>
+      <th>Date</th><th>Pair</th><th>Dir</th><th>Entry</th><th>SL</th><th>TP1</th><th>TP2</th><th>TP3</th>
+      <th>Result</th><th>P/L (R)</th><th>Conf</th><th>TF</th><th>Duration</th><th>Closed</th>
+    </tr></thead><tbody>${arr.map(h => {
+      const win = ["TP1 HIT","TP2 HIT","FULL TP"].includes(h.result);
+      return `<tr>
+        <td>${fmtTime(h.createdAt)}</td>
+        <td><b>${esc(h.pairLabel)}</b></td>
+        <td><span class="badge ${h.direction === "BUY" ? "buy" : "sell"}">${esc(h.direction)}</span></td>
+        <td class="num">${fmtPrice(h.entry, h.pairId)}</td>
+        <td class="num">${fmtPrice(h.stopLoss, h.pairId)}</td>
+        <td class="num">${fmtPrice(h.tp1, h.pairId)}</td>
+        <td class="num">${fmtPrice(h.tp2, h.pairId)}</td>
+        <td class="num">${fmtPrice(h.tp3, h.pairId)}</td>
+        <td><span class="badge ${win ? "tp" : h.result === "STOP LOSS" ? "sl" : "mute"}">${esc(h.result || "—")}</span></td>
+        <td class="num ${win ? "up" : h.result === "STOP LOSS" ? "down" : ""}">${h.pnlR !== null && h.pnlR !== undefined ? (h.pnlR > 0 ? "+" : "") + h.pnlR.toFixed(2) : "—"}</td>
+        <td class="num">${h.confidence}</td>
+        <td>${esc(h.timeframe)}</td>
+        <td>${durationStr(h.duration)}</td>
+        <td>${fmtTime(h.closedAt)}</td>
+      </tr>`;
+    }).join("")}</tbody></table>`;
+}
+
+function renderNewsRiskPanel(compact){
+  const risk = STATE.news.risk;
+  const riskClass = risk === "EXTREME" ? "sl" : risk === "HIGH" ? "warn" : risk === "MEDIUM" ? "pending" : "tp";
+  const events = STATE.news.events.length;
+  const headlines = STATE.news.headlines.length;
+  if(compact){
+    return `<div class="evidence-row"><div class="k"><i class="fa-solid fa-triangle-exclamation"></i> Risk Level</div><div class="v"><span class="badge ${riskClass}">${esc(risk)}</span></div></div>
+            <div class="evidence-row"><div class="k"><i class="fa-solid fa-calendar"></i> Events Loaded</div><div class="v">${events}</div></div>
+            <div class="evidence-row"><div class="k"><i class="fa-solid fa-newspaper"></i> Headlines</div><div class="v">${headlines}</div></div>`;
+  }
+  return `<div class="evidence-row"><div class="k"><i class="fa-solid fa-triangle-exclamation"></i> Current Risk</div><div class="v"><span class="badge ${riskClass}" style="font-size:12px;padding:6px 12px">${esc(risk)}</span></div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-calendar"></i> Economic Events</div><div class="v">${events}</div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-newspaper"></i> Headlines</div><div class="v">${headlines}</div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-clock"></i> Last Calendar Update</div><div class="v">${STATE.news.lastCal ? timeAgo(STATE.news.lastCal) + " ago" : "—"}</div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-clock"></i> Last News Update</div><div class="v">${STATE.news.lastNews ? timeAgo(STATE.news.lastNews) + " ago" : "—"}</div></div>
+    <div style="margin-top:14px;font-size:11.5px;color:var(--mute);line-height:1.6">
+      Before major events → HIGH NEWS RISK. During → EXTREME VOLATILITY. After → wait, analyse result, reassess. The engine never blindly trades the news.
+    </div>`;
+}
+
+function renderNews(){
+  $("#newsRiskPanel").innerHTML = renderNewsRiskPanel(false);
+
+  // Calendar table
+  const ev = STATE.news.events;
+  if(!ev.length){
+    $("#newsCalendar").innerHTML = `<div class="empty"><i class="fa-solid fa-calendar-xmark"></i><b>Economic calendar unavailable</b><span>Configure the secure proxy or enable direct API calls with your own FinanceCalendar endpoint.</span></div>`;
+  } else {
+    $("#newsCalendar").innerHTML = `<table class="tbl">
+      <thead><tr><th>Time</th><th>Currency</th><th>Event</th><th>Impact</th><th>Forecast</th><th>Previous</th><th>Actual</th></tr></thead>
+      <tbody>${ev.slice(0,25).map(e => {
+        const impact = String(e.impact || e.importance || "").toLowerCase();
+        const cls = impact.includes("high") ? "sl" : impact.includes("medium") ? "warn" : "mute";
+        return `<tr>
+          <td class="num">${esc(e.time || e.date || "—")}</td>
+          <td><b>${esc(e.currency || e.country || "—")}</b></td>
+          <td>${esc(e.title || e.event || e.name || "—")}</td>
+          <td><span class="badge ${cls}">${esc(e.impact || e.importance || "—")}</span></td>
+          <td class="num">${esc(e.forecast || "—")}</td>
+          <td class="num">${esc(e.previous || "—")}</td>
+          <td class="num">${esc(e.actual || "—")}</td>
+        </tr>`;
+      }).join("")}</tbody></table>`;
+  }
+
+  // Headlines
+  const hl = STATE.news.headlines;
+  if(!hl.length){
+    $("#newsHeadlines").innerHTML = `<div class="empty"><i class="fa-solid fa-newspaper"></i><b>No headlines loaded</b><span>Configure the secure proxy or enable direct API calls with your own Marketaux API key.</span></div>`;
+  } else {
+    $("#newsHeadlines").innerHTML = hl.map(h => {
+      const sentiment = h.sentiment || h.entities?.[0]?.sentiment_score;
+      const sentClass = sentiment > 0.15 ? "tp" : sentiment < -0.15 ? "sl" : "mute";
+      return `<div class="news-item">
+        <div class="news-hd">
+          <span class="badge ${sentClass}">${sentiment !== undefined && sentiment !== null ? (sentiment > 0 ? "BULLISH" : sentiment < 0 ? "BEARISH" : "NEUTRAL") : "—"}</span>
+          <span class="dim" style="font-size:10.5px">${esc(h.source || "")}</span>
+          <span class="dim" style="font-size:10.5px">${h.published_at ? timeAgo(Date.parse(h.published_at)) + " ago" : ""}</span>
+        </div>
+        <div class="news-title">${esc(h.title || h.headline || "—")}</div>
+        <div class="news-meta">
+          ${(h.entities||[]).slice(0,4).map(en => `<span>${esc(en.symbol || en.name)}</span>`).join("")}
+        </div>
+      </div>`;
+    }).join("");
+  }
+}
+
+function renderLearning(){
+  const all = Object.values(STATE.experiences);
+  const real = all.filter(e => !e.isPaper);
+  const paper = all.filter(e => e.isPaper);
+  const l = Learning.getStats(real);
+  const lp = Learning.getStats(paper);
+
+  $("#learnStats").innerHTML = `
+    <div class="stat"><div class="lbl">Signals Analyzed</div><div class="val">${Object.keys(STATE.analysisLog).length}</div></div>
+    <div class="stat"><div class="lbl">Completed</div><div class="val">${real.length}</div></div>
+    <div class="stat g"><div class="lbl">Wins</div><div class="val">${l.wins}</div></div>
+    <div class="stat r"><div class="lbl">Losses</div><div class="val">${l.losses}</div></div>
+    <div class="stat y"><div class="lbl">Win Rate</div><div class="val">${l.total >= 5 ? fmtPct(l.winRate) : "—"}</div></div>`;
+
+  $("#learnSplit").innerHTML = `
+    <div class="bar-row"><div class="nm">Real Experiences</div><div class="bar-track"><i style="width:${clamp(real.length*4,0,100)}%"></i></div><div class="vv">${real.length}</div></div>
+    <div class="bar-row"><div class="nm">Paper Experiences</div><div class="bar-track"><i style="width:${clamp(paper.length*4,0,100)}%;background:linear-gradient(90deg,var(--gold),var(--orange))"></i></div><div class="vv">${paper.length}</div></div>
+    <div style="margin-top:14px;font-size:11.5px;color:var(--mute);line-height:1.6">Real and paper results are stored in completely separate ledgers and are never mixed.</div>`;
+
+  $("#learnBestPairs").innerHTML = l.pairs.length ? l.pairs.slice(0,5).map(p => `
+    <div class="bar-row"><div class="nm">${esc(p.pair)}</div><div class="bar-track"><i style="width:${p.rate*100}%"></i></div><div class="vv">${(p.rate*100).toFixed(0)}%</div></div>`).join("") :
+    `<div class="empty"><i class="fa-solid fa-chart-simple"></i><b>Insufficient data</b></div>`;
+
+  $("#learnBestTf").innerHTML = l.tfs.length ? l.tfs.map(t => `
+    <div class="bar-row"><div class="nm">${esc(t.tf)}</div><div class="bar-track"><i style="width:${t.rate*100}%"></i></div><div class="vv">${(t.rate*100).toFixed(0)}%</div></div>`).join("") :
+    `<div class="empty"><i class="fa-solid fa-clock"></i><b>Insufficient data</b></div>`;
+
+  const weak = l.pairs.filter(p => p.rate < 0.5).slice(0,4);
+  $("#learnWeak").innerHTML = weak.length ? weak.map(p => `
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-triangle-exclamation"></i> ${esc(p.pair)}</div><div class="v">${p.wins}W / ${p.losses}L</div></div>`).join("") :
+    `<div class="empty"><i class="fa-solid fa-thumbs-up"></i><b>No weak setups identified</b><span>All tracked pairs are performing adequately.</span></div>`;
+
+  $("#learnExpCount").textContent = all.length + " experiences";
+
+  const sorted = all.slice().sort((a,b) => b.createdAt - a.createdAt).slice(0,25);
+  if(!sorted.length){
+    $("#learnTable").innerHTML = `<div class="empty"><i class="fa-solid fa-database"></i><b>No experiences yet</b><span>Learning begins after the first completed signal.</span></div>`;
+  } else {
+    $("#learnTable").innerHTML = `<table class="tbl">
+      <thead><tr><th>Date</th><th>Pair</th><th>Dir</th><th>TF</th><th>Conf</th><th>Result</th><th>R</th><th>Source</th></tr></thead>
+      <tbody>${sorted.map(e => `<tr>
+        <td>${fmtTime(e.createdAt)}</td>
+        <td><b>${esc(e.pairLabel)}</b></td>
+        <td><span class="badge ${e.direction === "BUY" ? "buy" : "sell"}">${esc(e.direction)}</span></td>
+        <td>${esc(e.timeframe)}</td>
+        <td class="num">${e.confidence}</td>
+        <td><span class="badge ${e.outcome === "WIN" ? "tp" : "sl"}">${esc(e.result)}</span></td>
+        <td class="num ${e.outcome === "WIN" ? "up" : "down"}">${e.pnlR !== null && e.pnlR !== undefined ? (e.pnlR>0?"+":"")+e.pnlR.toFixed(2) : "—"}</td>
+        <td><span class="badge ${e.isPaper ? "gold" : "info"}">${e.isPaper ? "PAPER" : "REAL"}</span></td>
+      </tr>`).join("")}</tbody></table>`;
+  }
+
+  // Equity curve (real only)
+  const ctx = document.getElementById("equityChart");
+  if(ctx && window.Chart){
+    const realClosed = Object.values(STATE.history).filter(h => !h.isPaper && h.pnlR !== null).sort((a,b) => (a.closedAt||0)-(b.closedAt||0));
+    let cum = 0;
+    const labels = realClosed.map((h,i) => "#" + (i+1));
+    const data = realClosed.map(h => { cum += h.pnlR || 0; return Number(cum.toFixed(2)); });
+    if(window.__equityChart) window.__equityChart.destroy();
+    window.__equityChart = new Chart(ctx, {
+      type: "line",
+      data: { labels, datasets: [{ label: "Cumulative R", data, borderColor: "#22d3ee", backgroundColor: "rgba(34,211,238,.12)", tension: .3, fill: true, pointRadius: 2 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: "rgba(88,132,210,.08)" }, ticks: { color: "#5b6d8d", font: { size: 10 } } },
+          y: { grid: { color: "rgba(88,132,210,.08)" }, ticks: { color: "#5b6d8d", font: { size: 10 } } }
+        }
+      }
+    });
+  }
+}
+
+function renderBrainStatus(){
+  $("#brainEngine").textContent = (CONFIG.PROXY_BASE_URL || CONFIG.ALLOW_DIRECT_API_CALLS) ? "Gemini + Heuristic" : "Heuristic engine";
+  $("#brainState").textContent = STATE.brain.running ? "Scanning…" : "Standby";
+  $("#brainLast").textContent = STATE.brain.lastRun ? timeAgo(STATE.brain.lastRun) + " ago" : "—";
+  const today = dayStart(now());
+  const decisions = Object.values(STATE.analysisLog).filter(l => l.createdAt >= today);
+  const buys = decisions.filter(l => l.direction === "BUY").length;
+  const sells = decisions.filter(l => l.direction === "SELL").length;
+  const noTrade = decisions.filter(l => l.direction === "NO TRADE").length;
+  $("#brainDecisions").textContent = `BUY ${buys} · SELL ${sells} · NO TRADE ${noTrade}`;
+  $("#brainExp").textContent = Object.keys(STATE.experiences).length;
+}
+
+function renderBrainDetail(pairId){
+  const el = $("#brainDetail"); if(!el) return;
+  if(!pairId){ el.innerHTML = ""; return; }
+  const a = analyzePair(pairId);
+  if(!a){
+    el.innerHTML = `<div class="empty"><i class="fa-solid fa-hourglass-half"></i><b>Insufficient tick data</b><span>Analysis requires more live ticks for this instrument.</span></div>`;
+    return;
+  }
+  const e = a.evidence;
+  const dirBadge = e.dir === "bullish" ? "buy" : e.dir === "bearish" ? "sell" : "notrade";
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:18px;font-weight:700">${esc(a.label)}</div>
+        <div class="muted" style="font-size:11.5px;margin-top:3px">Live: <b class="mono" style="color:var(--cyan)">${fmtPrice(a.price, pairId)}</b></div>
+      </div>
+      <span class="badge ${dirBadge}" style="font-size:12px;padding:6px 13px">${e.dir.toUpperCase()}</span>
+    </div>
+    <div class="grid g2" style="gap:6px 22px">
+      <div>
+        <div class="evidence-row"><div class="k"><i class="fa-solid fa-arrow-trend-up"></i> Trend</div><div class="v">${e.dir === "bullish" ? "Bullish" : e.dir === "bearish" ? "Bearish" : "Neutral"}</div></div>
+        <div class="evidence-row"><div class="k"><i class="fa-solid fa-diagram-project"></i> Structure</div><div class="v">${e.bos ? "BOS Confirmed" : e.choch ? "CHOCH" : e.structure}</div></div>
+        <div class="evidence-row"><div class="k"><i class="fa-solid fa-water"></i> Liquidity</div><div class="v">${e.sweep !== "none" ? "Sweep " + e.sweep : "No sweep"}</div></div>
+        <div class="evidence-row"><div class="k"><i class="fa-solid fa-bolt"></i> Momentum</div><div class="v">${e.momentum}</div></div>
+        <div class="evidence-row"><div class="k"><i class="fa-solid fa-chart-line"></i> Volatility (ATR)</div><div class="v">${e.volatility !== null ? e.volatility.toFixed(4) + "%" : "—"}</div></div>
+        <div class="evidence-row"><div class="k"><i class="fa-solid fa-gauge"></i> RSI</div><div class="v">${e.rsi !== null ? e.rsi.toFixed(1) : "—"}</div></div>
+      </div>
+      <div>
+        <div class="evidence-row"><div class="k"><i class="fa-solid fa-wave-square"></i> ADX</div><div class="v">${e.adx !== null ? e.adx.toFixed(1) : "—"}</div></div>
+        <div class="evidence-row"><div class="k"><i class="fa-solid fa-layer-group"></i> MTF Confirm</div><div class="v">${e.mtfConfirm}/3</div></div>
+        <div class="evidence-row"><div class="k"><i class="fa-solid fa-newspaper"></i> News Risk</div><div class="v"><span class="badge ${STATE.news.risk === "HIGH" || STATE.news.risk === "EXTREME" ? "warn" : "tp"}">${STATE.news.risk}</span></div></div>
+        <div class="evidence-row"><div class="k"><i class="fa-solid fa-bullseye"></i> Bullish Votes</div><div class="v">${e.bullishVotes}</div></div>
+        <div class="evidence-row"><div class="k"><i class="fa-solid fa-bullseye"></i> Bearish Votes</div><div class="v">${e.bearishVotes}</div></div>
+        <div class="evidence-row"><div class="k"><i class="fa-solid fa-brain"></i> AI Confidence</div><div class="v">${a.score}/100</div></div>
+      </div>
+    </div>
+    <div style="margin-top:16px;font-size:11.5px;color:var(--mute);line-height:1.6">
+      Confidence is an AI strength score only — it is not a probability of success. Hidden reasoning is never exposed.
+    </div>`;
+}
+
+function renderBrainLog(){
+  const logs = Object.values(STATE.analysisLog).sort((a,b) => b.createdAt - a.createdAt).slice(0,30);
+  if(!logs.length){
+    $("#brainLog").innerHTML = `<div class="empty"><i class="fa-solid fa-brain"></i><b>No brain decisions yet</b><span>The engine logs every decision here, including NO TRADE.</span></div>`;
+    return;
+  }
+  $("#brainLog").innerHTML = `<table class="tbl">
+    <thead><tr><th>Time</th><th>Pair</th><th>Direction</th><th>Confidence</th><th>TF</th><th>Source</th><th>Explanation</th></tr></thead>
+    <tbody>${logs.map(l => `<tr>
+      <td>${fmtTime(l.createdAt)}</td>
+      <td><b>${esc(PAIR_MAP[l.pairId]?.label || l.pairId)}</b></td>
+      <td><span class="badge ${l.direction === "BUY" ? "buy" : l.direction === "SELL" ? "sell" : "notrade"}">${esc(l.direction)}</span></td>
+      <td class="num">${l.confidence}</td>
+      <td>${esc(l.timeframe || "—")}</td>
+      <td><span class="badge ${l.source === "gemini" ? "info" : "mute"}">${esc(l.source || "—")}</span></td>
+      <td style="max-width:400px;font-size:11.5px;color:var(--dim)">${esc(l.explanation || "")}</td>
+    </tr>`).join("")}</tbody></table>`;
+}
+
+function renderPaper(){
+  const arr = Object.values(STATE.paper);
+  const wins = arr.filter(p => ["TP1 HIT","TP2 HIT","FULL TP"].includes(p.result)).length;
+  const losses = arr.filter(p => p.result === "STOP LOSS").length;
+  const open = arr.filter(p => ["PENDING","ACTIVE","WEAKENING"].includes(p.status)).length;
+  const decided = wins + losses;
+  $("#paperStats").innerHTML = `
+    <div class="stat"><div class="lbl">Total</div><div class="val">${arr.length}</div></div>
+    <div class="stat b"><div class="lbl">Open</div><div class="val">${open}</div></div>
+    <div class="stat g"><div class="lbl">Wins</div><div class="val">${wins}</div></div>
+    <div class="stat r"><div class="lbl">Losses</div><div class="val">${losses}</div></div>
+    <div class="stat y"><div class="lbl">Win Rate</div><div class="val">${decided >= 5 ? fmtPct((wins/decided)*100) : "—"}</div></div>`;
+
+  const btn = $("#btnPaperToggle");
+  btn.innerHTML = STATE.settings.paperMode ? `<i class="fa-solid fa-stop"></i> Disable Paper Mode` : `<i class="fa-solid fa-play"></i> Enable Paper Mode`;
+
+  if(!arr.length){
+    $("#paperTable").innerHTML = `<div class="empty"><i class="fa-solid fa-flask"></i><b>No paper trades yet</b><span>Enable paper mode to simulate signals without affecting real statistics.</span></div>`;
+    return;
+  }
+  $("#paperTable").innerHTML = `<table class="tbl">
+    <thead><tr><th>Date</th><th>Pair</th><th>Dir</th><th>Entry</th><th>Result</th><th>R</th><th>Status</th><th>Conf</th></tr></thead>
+    <tbody>${arr.sort((a,b) => b.createdAt - a.createdAt).slice(0,50).map(p => `<tr>
+      <td>${fmtTime(p.createdAt)}</td>
+      <td><b>${esc(p.pairLabel)}</b></td>
+      <td><span class="badge ${p.direction === "BUY" ? "buy" : "sell"}">${esc(p.direction)}</span></td>
+      <td class="num">${fmtPrice(p.entry, p.pairId)}</td>
+      <td><span class="badge ${["TP1 HIT","TP2 HIT","FULL TP"].includes(p.result) ? "tp" : p.result === "STOP LOSS" ? "sl" : "mute"}">${esc(p.result || "—")}</span></td>
+      <td class="num">${p.pnlR !== null && p.pnlR !== undefined ? p.pnlR.toFixed(2) : "—"}</td>
+      <td><span class="badge ${p.status === "PENDING" ? "pending" : p.status === "ACTIVE" ? "active" : "mute"}">${esc(p.status)}</span></td>
+      <td class="num">${p.confidence}</td>
+    </tr>`).join("")}</tbody></table>`;
+}
+
+function renderSettingsStatus(){
+  const el = $("#settingsStatus"); if(!el) return;
+  el.innerHTML = `
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-database"></i> Firebase</div><div class="v"><span class="badge ${FB.ready ? "tp" : "warn"}">${FB.ready ? "CONNECTED" : "NOT CONFIGURED"}</span></div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-tower-broadcast"></i> Deriv WebSocket</div><div class="v"><span class="badge ${Deriv.connected ? "tp" : "warn"}">${Deriv.connected ? "LIVE" : "RECONNECTING"}</span></div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-brain"></i> AI Engine</div><div class="v"><span class="badge ${(API.hasProxy() || CONFIG.ALLOW_DIRECT_API_CALLS) ? "tp" : "mute"}">${API.hasProxy() ? "PROXY" : CONFIG.ALLOW_DIRECT_API_CALLS ? "DIRECT" : "HEURISTIC ONLY"}</span></div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-newspaper"></i> News Engine</div><div class="v"><span class="badge ${(API.hasProxy() || CONFIG.ALLOW_DIRECT_API_CALLS) ? "tp" : "mute"}">${API.hasProxy() ? "PROXY" : CONFIG.ALLOW_DIRECT_API_CALLS ? "DIRECT" : "LOCAL ONLY"}</span></div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-signal"></i> Live Pairs</div><div class="v">${PAIRS.filter(p => STATE.market[p.id]?.price).length}/${PAIRS.length}</div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-code-branch"></i> Version</div><div class="v mono">v${CONFIG.VERSION}</div></div>`;
+}
+
+function renderAdmin(){
+  const denied = $("#adminDenied"), panel = $("#adminPanel");
+  if(!STATE.isAdmin){
+    denied.classList.remove("hidden");
+    panel.classList.add("hidden");
+    return;
+  }
+  denied.classList.add("hidden");
+  panel.classList.remove("hidden");
+
+  const p = STATE.perf || calculatePerformance();
+  $("#adminStats").innerHTML = `
+    <div class="stat"><div class="lbl">Users</div><div class="val">${FB.ready ? "—" : "0"}</div></div>
+    <div class="stat b"><div class="lbl">Open Signals</div><div class="val">${Object.keys(STATE.signals).length}</div></div>
+    <div class="stat g"><div class="lbl">Closed (Real)</div><div class="val">${p.total}</div></div>
+    <div class="stat y"><div class="lbl">Experiences</div><div class="val">${Object.keys(STATE.experiences).length}</div></div>`;
+
+  $("#adminHealth").innerHTML = `
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-database"></i> Firebase</div><div class="v"><span class="badge ${FB.ready ? "tp" : "sl"}">${FB.ready ? "HEALTHY" : "OFFLINE"}</span></div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-tower-broadcast"></i> Deriv WS</div><div class="v"><span class="badge ${Deriv.connected ? "tp" : "warn"}">${Deriv.connected ? "CONNECTED" : "DISCONNECTED"}</span></div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-brain"></i> AI</div><div class="v"><span class="badge ${serviceState.ai === "on" ? "tp" : "warn"}">${serviceState.ai === "on" ? "ONLINE" : "LIMITED"}</span></div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-newspaper"></i> News</div><div class="v"><span class="badge ${serviceState.news === "on" ? "tp" : "warn"}">${serviceState.news === "on" ? "ONLINE" : "LIMITED"}</span></div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-code-branch"></i> Version</div><div class="v mono">v${CONFIG.VERSION}</div></div>`;
+
+  $("#adminAIControl").innerHTML = `
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-microchip"></i> Engine Mode</div><div class="v">${API.hasProxy() ? "Proxy" : CONFIG.ALLOW_DIRECT_API_CALLS ? "Direct" : "Heuristic"}</div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-list-check"></i> Decisions Today</div><div class="v">${Object.values(STATE.analysisLog).filter(l => l.createdAt >= dayStart(now())).length}</div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-clock"></i> Analysis Interval</div><div class="v">${STATE.settings.analysisInterval} min</div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-stopwatch"></i> Monitor Interval</div><div class="v">${STATE.settings.monitorInterval} s</div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-percent"></i> Min Confidence</div><div class="v">${STATE.settings.minConfidence}</div></div>`;
+
+  $("#adminNewsControl").innerHTML = `
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-triangle-exclamation"></i> Current Risk</div><div class="v"><span class="badge ${STATE.news.risk === "HIGH" || STATE.news.risk === "EXTREME" ? "warn" : "tp"}">${STATE.news.risk}</span></div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-calendar"></i> Events Cached</div><div class="v">${STATE.news.events.length}</div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-newspaper"></i> Headlines Cached</div><div class="v">${STATE.news.headlines.length}</div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-clock"></i> Last Calendar Fetch</div><div class="v">${STATE.news.lastCal ? timeAgo(STATE.news.lastCal) + " ago" : "—"}</div></div>
+    <div class="evidence-row"><div class="k"><i class="fa-solid fa-clock"></i> Last News Fetch</div><div class="v">${STATE.news.lastNews ? timeAgo(STATE.news.lastNews) + " ago" : "—"}</div></div>`;
+
+  // Users (best effort)
+  if(FB.ready){
+    DB.get("users").then(users => {
+      if(!users){ $("#adminUsers").innerHTML = `<div class="empty"><i class="fa-solid fa-users"></i><b>No users loaded</b></div>`; return; }
+      const list = Object.entries(users);
+      $("#adminUsers").innerHTML = `<table class="tbl"><thead><tr><th>UID</th><th>Name</th><th>Email</th><th>Role</th><th>Joined</th></tr></thead>
+        <tbody>${list.map(([k,v]) => `<tr>
+          <td class="mono" style="font-size:10.5px">${esc(k.slice(0,10))}…</td>
+          <td><b>${esc(v.profile?.name || "—")}</b></td>
+          <td>${esc(v.profile?.email || "—")}</td>
+          <td><span class="badge ${v.profile?.role === "admin" ? "info" : "mute"}">${esc(v.profile?.role || "trader")}</span></td>
+          <td>${v.profile?.createdAt ? fmtTime(v.profile.createdAt) : "—"}</td>
+        </tr>`).join("")}</tbody></table>`;
+    });
+  } else {
+    $("#adminUsers").innerHTML = `<div class="empty"><i class="fa-solid fa-database"></i><b>Firebase not configured</b><span>User management requires a database connection.</span></div>`;
+  }
+
+  // Signals (open)
+  const sigs = Object.values(STATE.signals);
+  if(!sigs.length){
+    $("#adminSignals").innerHTML = `<div class="empty"><i class="fa-solid fa-bolt"></i><b>No open signals</b></div>`;
+  } else {
+    $("#adminSignals").innerHTML = `<table class="tbl"><thead><tr><th>Pair</th><th>Dir</th><th>Status</th><th>Conf</th><th>Age</th><th>Actions</th></tr></thead>
+      <tbody>${sigs.map(s => `<tr>
+        <td><b>${esc(s.pairLabel)}</b></td>
+        <td><span class="badge ${s.direction === "BUY" ? "buy" : "sell"}">${esc(s.direction)}</span></td>
+        <td><span class="badge ${s.status === "PENDING" ? "pending" : s.status === "ACTIVE" ? "active" : "warn"}">${esc(s.status)}</span></td>
+        <td class="num">${s.confidence}</td>
+        <td>${timeAgo(s.createdAt)}</td>
+        <td><button class="btn xs red" data-admin-close="${s.id}"><i class="fa-solid fa-xmark"></i> Invalidate</button></td>
+      </tr>`).join("")}</tbody></table>`;
+    $$("[data-admin-close]").forEach(b => b.addEventListener("click", async () => {
+      const id = b.dataset.adminClose;
+      const s = STATE.signals[id]; if(!s) return;
+      s.status = "INVALIDATED"; s.result = "INVALIDATED"; s.closedAt = now(); s.duration = s.closedAt - s.createdAt;
+      await SignalEngine.archiveSignal(s);
+      renderAdmin(); renderSignals(); renderHistory();
+      toast("Signal invalidated", s.pairLabel, "warn");
+    }));
+  }
+
+  // Logs
+  if(!RUNTIME_LOGS.length){
+    $("#adminLogs").innerHTML = `<div class="empty"><i class="fa-solid fa-circle-check"></i><b>No errors logged</b><span>System is clean.</span></div>`;
+  } else {
+    $("#adminLogs").innerHTML = `<table class="tbl"><thead><tr><th>Time</th><th>Level</th><th>Source</th><th>Message</th></tr></thead>
+      <tbody>${RUNTIME_LOGS.slice(0,30).map(l => `<tr>
+        <td>${fmtTime(l.at)}</td>
+        <td><span class="badge ${l.level === "error" ? "sl" : l.level === "warn" ? "warn" : "mute"}">${esc(l.level)}</span></td>
+        <td>${esc(l.source)}</td>
+        <td style="font-size:11.5px">${esc(l.message)}</td>
+      </tr>`).join("")}</tbody></table>`;
+  }
+}
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 18 — UI EVENT BINDINGS
+   ------------------------------------------------------------------------------------------------ */
+function bindUI(){
+  // Sidebar nav
+  $$(".nav-item").forEach(el => el.addEventListener("click", () => {
+    $$(".nav-item").forEach(n => n.classList.remove("active"));
+    el.classList.add("active");
+    const view = el.dataset.view;
+    STATE.ui.view = view;
+    $$(".view").forEach(v => v.classList.remove("active"));
+    document.getElementById("view-" + view)?.classList.add("active");
+    const titles = { dashboard:["Dashboard","Platform overview"], signals:["Live Signals","Active market setups"], history:["History","Permanent audit trail"],
+      paper:["Paper Trading","Simulation ledger"], brain:["AI Brain","Evidence summaries"], news:["News Center","Calendar & headlines"],
+      learning:["Learning","Experience memory"], profile:["Profile","Account details"], settings:["Settings","Engine configuration"], admin:["Admin Panel","System control"] };
+    const t = titles[view] || [view,""];
+    $("#pageTitle").innerHTML = t[0] + " <small>" + t[1] + "</small>";
+    $("#sidebar").classList.remove("open");
+    renderAll();
+  }));
+
+  // Quick nav from buttons
+  document.addEventListener("click", e => {
+    const btn = e.target.closest("[data-goto]");
+    if(btn){
+      const target = btn.dataset.goto;
+      const navItem = document.querySelector(`.nav-item[data-view="${target}"]`);
+      if(navItem) navItem.click();
+    }
+  });
+
+  // Mobile menu
+  $("#menuBtn").addEventListener("click", () => $("#sidebar").classList.toggle("open"));
+
+  // Signal filters
+  $$("#sigFilters .chip").forEach(c => c.addEventListener("click", () => {
+    $$("#sigFilters .chip").forEach(x => x.classList.remove("active"));
+    c.classList.add("active");
+    STATE.ui.sigFilter = c.dataset.sigfilter;
+    renderSignals();
+  }));
+
+  // History filters
+  $$("#histFilters .chip").forEach(c => c.addEventListener("click", () => {
+    $$("#histFilters .chip").forEach(x => x.classList.remove("active"));
+    c.classList.add("active");
+    STATE.ui.histFilter = c.dataset.histfilter;
+    renderHistory();
+  }));
+  $$("[data-histsrc]").forEach(c => c.addEventListener("click", () => {
+    $$("[data-histsrc]").forEach(x => x.classList.remove("active"));
+    c.classList.add("active");
+    STATE.ui.histSrc = c.dataset.histsrc;
+    renderHistory();
+  }));
+
+  // Export
+  $("#btnExportHistory").addEventListener("click", () => {
+    const arr = Object.values(STATE.ui.histSrc === "paper" ? STATE.paper : STATE.history);
+    if(!arr.length) return toast("Nothing to export","No history records yet.","warn");
+    const headers = ["id","createdAt","closedAt","pairLabel","direction","timeframe","entry","stopLoss","tp1","tp2","tp3","result","pnlR","confidence","duration"];
+    const rows = arr.map(h => headers.map(k => JSON.stringify(h[k] ?? "")).join(","));
+    downloadFile("fx-sentinel-history-" + Date.now() + ".csv", [headers.join(","), ...rows].join("\n"), "text/csv");
+    toast("Exported", arr.length + " records saved.", "ok");
+  });
+
+  // Analyze Now
+  $("#btnAnalyzeNow").addEventListener("click", async () => {
+    toast("Scanning", "Running AI analysis across instruments…", "info");
+    await SignalEngine.runScan();
+  });
+
+  // Refresh News
+  $("#btnRefreshNews").addEventListener("click", async () => {
+    STATE.news.lastCal = 0; STATE.news.lastNews = 0;
+    await Promise.all([News.fetchCalendar(), News.fetchHeadlines()]);
+    renderNews();
+    toast("News refreshed", `${STATE.news.events.length} events · ${STATE.news.headlines.length} headlines`, "ok");
+  });
+
+  // Paper toggle
+  $("#btnPaperToggle").addEventListener("click", () => {
+    STATE.settings.paperMode = !STATE.settings.paperMode;
+    toast("Paper mode " + (STATE.settings.paperMode ? "enabled" : "disabled"), "New signals will be stored in the simulation ledger.", STATE.settings.paperMode ? "warn" : "info");
+    renderPaper();
+  });
+
+  // Save settings
+  $("#btnSaveSettings").addEventListener("click", async () => {
+    STATE.settings.analysisInterval = clamp(parseInt($("#setInterval").value)||15, 1, 240);
+    STATE.settings.monitorInterval  = clamp(parseInt($("#setMonitor").value)||30, 5, 300);
+    STATE.settings.minConfidence    = clamp(parseInt($("#setMinConf").value)||65, 0, 100);
+    STATE.settings.maxSignals       = clamp(parseInt($("#setMaxSig").value)||8, 1, 20);
+    STATE.settings.expiryHours      = clamp(parseInt($("#setExpiry").value)||12, 1, 72);
+    if(FB.ready && STATE.user) await DB.set(`users/${STATE.user.uid}/settings`, STATE.settings);
+    scheduleAnalysis();
+    clearInterval(monitorTimer);
+    monitorTimer = setInterval(() => {
+      Object.values(STATE.signals).forEach(s => {
+        const p = Deriv.getPrice(s.pairId);
+        if(p) updateSignalLifecycle(s, p);
+      });
+      renderSignals();
+    }, STATE.settings.monitorInterval * 1000);
+    toast("Settings saved", "Engine will apply the new configuration.", "ok");
+    renderAll();
+  });
+
+  // Save profile
+  $("#btnSaveProfile").addEventListener("click", async () => {
+    const name = $("#profNameInput").value.trim() || STATE.user?.displayName;
+    STATE.user.displayName = name;
+    STATE.profile.name = name;
+    STATE.profile.experience = $("#profExp").value;
+    STATE.profile.timeframes = $("#profTf").value;
+    if(FB.ready && STATE.user) await DB.set(`users/${STATE.user.uid}/profile`, STATE.profile);
+    $("#sideUserName").textContent = name;
+    $("#profName").textContent = name;
+    $("#avatarInitials").textContent = name.substring(0,2).toUpperCase();
+    toast("Profile saved", "", "ok");
+  });
+
+  // Clear logs
+  $("#btnClearLogs").addEventListener("click", () => {
+    RUNTIME_LOGS.length = 0;
+    renderAdmin();
+    toast("Logs cleared", "", "ok");
+  });
+
+  // Forgot password
+  $("#btnForgot").addEventListener("click", async () => {
+    const email = $("#loginEmail").value.trim();
+    if(!email) return toast("Enter email", "Type your email address first.", "warn");
+    if(!FB.ready) return toast("Unavailable", "Firebase not configured.", "err");
+    try{ await FB.auth.sendPasswordResetEmail(email); toast("Email sent", "Check your inbox.", "ok"); }
+    catch(e){ toast("Failed", e.message, "err"); }
+  });
+}
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 19 — AUTH EVENT HANDLERS
+   ------------------------------------------------------------------------------------------------ */
+function bindAuth(){
+  document.querySelectorAll("[data-authtab]").forEach(tab => tab.addEventListener("click", () => {
+    document.querySelectorAll("[data-authtab]").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    const type = tab.dataset.authtab;
+    $("#authLogin").classList.toggle("hidden", type !== "login");
+    $("#authRegister").classList.toggle("hidden", type !== "register");
+  }));
+
+  $("#btnLogin").addEventListener("click", async () => {
+    const email = $("#loginEmail").value.trim();
+    const pass = $("#loginPass").value;
+    if(!email || !pass) return toast("Error", "Email and password required.", "err");
+    if(!FB.ready) return toast("Firebase not configured", "Use Guest mode or configure Firebase.", "err");
+    try{ await FB.auth.signInWithEmailAndPassword(email, pass); }
+    catch(e){ toast("Login failed", e.message, "err"); }
+  });
+
+  $("#btnRegister").addEventListener("click", async () => {
+    const name = $("#regName").value.trim();
+    const email = $("#regEmail").value.trim();
+    const pass = $("#regPass").value;
+    if(!name || !email || !pass) return toast("Error", "All fields are required.", "err");
+    if(pass.length < 6) return toast("Error", "Password must be at least 6 characters.", "err");
+    if(!FB.ready) return toast("Firebase not configured", "Cannot create accounts without a database.", "err");
+    try{
+      const cred = await FB.auth.createUserWithEmailAndPassword(email, pass);
+      await cred.user.updateProfile({ displayName: name });
+      await DB.set(`users/${cred.user.uid}/profile`, { name, email, role:"trader", createdAt: now() });
+      await DB.set(`users/${cred.user.uid}/settings`, STATE.settings);
+      toast("Account created", "Welcome to FX Sentinel.", "ok");
+    }catch(e){ toast("Registration failed", e.message, "err"); }
+  });
+
+  $("#btnGuest").addEventListener("click", async () => {
+    STATE.user = { uid:"guest_" + Date.now(), email:"guest@local", displayName:"Guest Trader" };
+    STATE.profile = { name:"Guest Trader", role:"trader", createdAt: now() };
+    STATE.isAdmin = true; // allow guest to explore admin panel
+    STATE.persistence = false;
+    await enterApp();
+  });
+
+  $("#btnLogout").addEventListener("click", async () => {
+    if(FB.auth && FB.auth.currentUser){
+      try{ await FB.auth.signOut(); }catch(e){}
+    } else {
+      location.reload();
+    }
+  });
+}
+
+/* ------------------------------------------------------------------------------------------------
+   SECTION 20 — INITIALISE
+   ------------------------------------------------------------------------------------------------ */
+bindAuth();
+bindUI();
+bootApp();
+
+// Expose diagnostics
+window.FXSentinel = { STATE, CONFIG, Deriv, SignalEngine, Brain, News, Learning, calculatePerformance };
+</script>
+</body>
+</html>
